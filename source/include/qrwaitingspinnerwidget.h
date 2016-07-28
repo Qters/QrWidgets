@@ -36,7 +36,8 @@ public:
    * constructor if you wish to, e.g. embed your widget in another. */
     QrWaitingSpinnerWidget(QWidget *parent = 0,
                          bool centerOnParent = true,
-                         bool disableParentWhenSpinning = true);
+                         bool disableParentWhenSpinning = true,
+                         bool semiTransparent = true);
 
     /*! Constructor - use this constructor to automatically create a modal
    * ("blocking") spinner on top of the calling widget/window.  If a valid
@@ -46,7 +47,8 @@ public:
     QrWaitingSpinnerWidget(Qt::WindowModality modality,
                          QWidget *parent = 0,
                          bool centerOnParent = true,
-                         bool disableParentWhenSpinning = true);
+                         bool disableParentWhenSpinning = true,
+                         bool semiTransparent = true);
 
 public slots:
     void start();
@@ -111,6 +113,7 @@ private:
     QrWaitingSpinnerWidget& operator=(const QrWaitingSpinnerWidget&);
 
     QTimer *_timer;
+    bool    _semiTransparent;
     bool    _centerOnParent;
     bool    _disableParentWhenSpinning;
     int     _currentCounter;

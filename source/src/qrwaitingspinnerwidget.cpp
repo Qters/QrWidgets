@@ -34,10 +34,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(QWidget *parent,
                                            bool centerOnParent,
                                            bool disableParentWhenSpinning)
-    : QWidget(parent),
       _centerOnParent(centerOnParent),
-      _disableParentWhenSpinning(disableParentWhenSpinning) {
+      _disableParentWhenSpinning(disableParentWhenSpinning),
+      _semiTransparent(semiTransparent) {
     initialize();
+
+    if (nullptr != parent && _semiTransparent) {
+        resize(parentWidget()->size());
+    }
 }
 
 QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(Qt::WindowModality modality,
@@ -54,6 +58,10 @@ QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(Qt::WindowModality modality,
     // the widget is visible has no effect.
     setWindowModality(modality);
     setAttribute(Qt::WA_TranslucentBackground);
+	
+	if (nullptr != parent && _semiTransparent) {
+        resize(parentWidget()->size());
+    }
 }
 
 void QrWaitingSpinnerWidget::initialize() {
@@ -87,10 +95,18 @@ void QrWaitingSpinnerWidget::paintEvent(QPaintEvent *) {
     }
 
     painter.setPen(Qt::NoPen);
+    if(parentWidget() && _semiTransparent) {
+        painter.fillRect(parentWidget()->rect(), QBrush(QColor(0, 0, 0, 200)));
+    }
+    QSize size = this->size();
     for (int i = 0; i < _numberOfLines; ++i) {
         painter.save();
-        painter.translate(_innerRadius + _lineLength,
-                          _innerRadius + _lineLength);
+        if (_semiTransparent) {
+            painter.translate(size.width()*0.5, size.height()*0.5 );
+        } else {
+			painter.translate(_innerRadius + _lineLength,
+							  _innerRadius + _lineLength);
+        }
         qreal rotateAngle =
                 static_cast<qreal>(360 * i) / static_cast<qreal>(_numberOfLines);
         painter.rotate(rotateAngle);
@@ -242,7 +258,9 @@ void QrWaitingSpinnerWidget::rotate() {
 
 void QrWaitingSpinnerWidget::updateSize() {
     int size = (_innerRadius + _lineLength) * 2;
-    setFixedSize(size, size);
+	if (! _semiTransparent) {
+        setFixedSize(size, size);
+    }
 }
 
 void QrWaitingSpinnerWidget::updateTimer() {

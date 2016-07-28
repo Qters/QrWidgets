@@ -31,9 +31,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <QPainter>
 #include <QTimer>
 
-QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(QWidget *parent,
-                                           bool centerOnParent,
-                                           bool disableParentWhenSpinning)
+QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(
+        QWidget *parent,
+        bool centerOnParent,
+        bool disableParentWhenSpinning,
+        bool semiTransparent)
+    : QWidget(parent),
       _centerOnParent(centerOnParent),
       _disableParentWhenSpinning(disableParentWhenSpinning),
       _semiTransparent(semiTransparent) {
@@ -44,13 +47,16 @@ QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(QWidget *parent,
     }
 }
 
-QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(Qt::WindowModality modality,
-                                           QWidget *parent,
-                                           bool centerOnParent,
-                                           bool disableParentWhenSpinning)
+QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(
+        Qt::WindowModality modality,
+        QWidget *parent,
+        bool centerOnParent,
+        bool disableParentWhenSpinning,
+        bool semiTransparent)
     : QWidget(parent, Qt::Dialog | Qt::FramelessWindowHint),
       _centerOnParent(centerOnParent),
-      _disableParentWhenSpinning(disableParentWhenSpinning){
+      _disableParentWhenSpinning(disableParentWhenSpinning),
+      _semiTransparent(semiTransparent) {
     initialize();
 
     // We need to set the window modality AFTER we've hidden the

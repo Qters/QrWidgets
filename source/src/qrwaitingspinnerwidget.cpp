@@ -31,6 +31,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <QPainter>
 #include <QTimer>
 
+USING_NS_QRWIDGETS;
+
 QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(
         QWidget *parent,
         bool centerOnParent,
@@ -165,11 +167,11 @@ void QrWaitingSpinnerWidget::defaultSetting() {
     this->setMinimumTrailOpacity(15.0);
     this->setTrailFadePercentage(70.0);
     this->setNumberOfLines(12);
-    this->setLineLength(10);
+    this->setLineLength(15);
     this->setLineWidth(5);
     this->setInnerRadius(10);
     this->setRevolutionsPerSecond(1);
-    this->setColor(QColor(81, 4, 71));
+    this->setColor(Qt::white);
 }
 
 void QrWaitingSpinnerWidget::setNumberOfLines(int lines) {

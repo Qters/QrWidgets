@@ -28,6 +28,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "qrwidgets_global.h"
 
+NS_QRWIDGETS_BEGIN
+
 class QRWIDGETSSHARED_EXPORT QrWaitingSpinnerWidget : public QWidget {
     Q_OBJECT
 
@@ -55,7 +57,7 @@ public slots:
     void stop();
 
 public:
-	void defaultSetting();
+    void defaultSetting();
     void setColor(QColor color);
     void setRoundness(qreal roundness);
     void setMinimumTrailOpacity(qreal minimumTrailOpacity);
@@ -119,3 +121,5 @@ private:
     int     _currentCounter;
     bool    _isSpinning;
 };
+
+NS_QRWIDGETS_END

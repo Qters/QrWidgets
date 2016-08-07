@@ -1,5 +1,5 @@
-#include "widget.h"
-#include "ui_widget.h"
+#include "waitingspinnerwidget.h"
+#include "ui_waitingspinnerwidget.h"
 
 #include <QtCore/qtimer.h>
 #include <QtCore/qeventloop.h>
@@ -8,9 +8,9 @@
 
 USING_NS_QRWIDGETS;
 
-Widget::Widget(QWidget *parent) :
+WaitingSpinnerWidget::WaitingSpinnerWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Widget)
+    ui(new Ui::WaitingSpinnerWidget)
 {
     ui->setupUi(this);
 
@@ -28,7 +28,7 @@ Widget::Widget(QWidget *parent) :
         });
 
         QEventLoop eventloop;
-        QObject::connect(this, &Widget::timeout,
+        QObject::connect(this, &WaitingSpinnerWidget::timeout,
                          &eventloop, &QEventLoop::quit);
         eventloop.exec();
 
@@ -36,7 +36,7 @@ Widget::Widget(QWidget *parent) :
     });
 }
 
-Widget::~Widget()
+WaitingSpinnerWidget::~WaitingSpinnerWidget()
 {
     delete ui;
 }

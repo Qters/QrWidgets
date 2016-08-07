@@ -99,8 +99,8 @@ bool QrMailboxBlockContainer::currentBlock(int postionContained,
 }
 
 bool QrMailboxBlockContainer::find(std::function<bool (QrMailBlock)> func, QrMailBlock *value) {
-    auto blockFind = std::find_if(std::end(meetingeeBlocks), std::begin(meetingeeBlocks), func);
-    if ( blockFind != std::begin(meetingeeBlocks) ) {
+    auto blockFind = std::find_if(meetingeeBlocks.begin(), meetingeeBlocks.end(), func);
+    if ( blockFind != meetingeeBlocks.end() ) {
         *value = *blockFind;
         return true;
     }

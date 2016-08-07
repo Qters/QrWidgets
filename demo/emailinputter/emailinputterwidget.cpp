@@ -23,7 +23,7 @@ EmailInputterWidget::EmailInputterWidget(QWidget *parent) :
     QStandardItem *item4 = new QStandardItem("adam@fsmeeting.com");
     rootItem->appendRow(item4);
 
-    ui->textEdit->showDropDownList(listData);
+    ui->widget->setDDListData(listData);
 }
 
 EmailInputterWidget::~EmailInputterWidget()

@@ -4,14 +4,10 @@
 #include <QtGui/QKeyEvent>
 #include <QtWidgets/qdialog.h>
 #include <QtWidgets/qapplication.h>
-#include <QtWidgets/qlistview.h>
 #include <QtWidgets/qmessagebox.h>
 #include <QtGui/qclipboard.h>
 
-#include <QtGui/qstandarditemmodel.h>
-
 #include "emailinputter/qrmailboxblock.h"
-#include "emailinputter/qrmailboxfilterproxymodel.h"
 
 NS_QRWIDGETS_BEGIN
 
@@ -24,12 +20,6 @@ public:
     int beginPosOfCurBlock = 0;
     QrMailboxBlockContainer meetingeeContainer;
     QTextCharFormat fmt ;
-
-public:
-    QString filterValue;
-    QListView *listview = nullptr;
-    QStandardItemModel *listdata = nullptr;
-    QrMailboxFilterProxyModel *listdataProxy = nullptr;
 
 public:
     QrEMailInputTextEditPrivate(QrEMailInputTextEdit* q);
@@ -52,27 +42,16 @@ public:
     bool signalBackspace(QTextCursor *curTextCursor);
     //  remove email address's selection
     bool selectionBackspace(QTextCursor *curTextCursor);
-    //  newline in inputting email address
-    //  or select current selection of email-list
-    bool onEnter();
     //	paste email addresses of clipboard
     void onPaste();
     //  paste one email address
     void pasteOneMailbox(const QString &pasteContent);
-    //  select the above selection of email-list
-    void onUp();
-    //  select the below selection of email-list
-    void onDown();
 
-public: //  drop-down list
-    //  create
-    bool createDDListView();
+public:
     //
     void updateBeginPosOfCurBlock(int position);
     //
     bool isValidEmail(const QString& emailAddr);
-    //  move selection of list
-    void moveListView(bool up);
 
 public: //  message
     void emailAdreesIsUnvalid(const QString& emailAddress);
@@ -80,13 +59,23 @@ public: //  message
 };
 
 QrEMailInputTextEditPrivate::QrEMailInputTextEditPrivate(QrEMailInputTextEdit *q)
-    : q_ptr(q) {}
-
-QrEMailInputTextEditPrivate::~QrEMailInputTextEditPrivate(){
+    : q_ptr(q)
+{
+    QObject::connect(q, &QrEMailInputTextEdit::textChanged,
+                     [this](){
+        Q_Q(QrEMailInputTextEdit);
+        emit q->startTyping(beginPosOfCurBlock);
+    });
 }
 
-void QrEMailInputTextEditPrivate::updateBeginPosOfCurBlock(int position){
+QrEMailInputTextEditPrivate::~QrEMailInputTextEditPrivate() {}
+
+void QrEMailInputTextEditPrivate::updateBeginPosOfCurBlock(int position)
+{
     beginPosOfCurBlock = position;
+
+    Q_Q(QrEMailInputTextEdit);
+    emit q->finishTyping();
 }
 
 bool QrEMailInputTextEditPrivate::onLeft()
@@ -174,8 +163,6 @@ bool QrEMailInputTextEditPrivate::onSemicolon()
 
     updateBeginPosOfCurBlock(newBlock.nextPos);  //  begin position of next block
 
-    filterValue.clear();    //  one mailbox finish, clear filterValue
-
     return true;
 }
 
@@ -190,30 +177,6 @@ bool QrEMailInputTextEditPrivate::selectionBackspace(QTextCursor *curTextCursor)
         }
         meetingeeContainer.removeByDisplay(selectBlock + split);
     }
-
-    return true;
-}
-
-bool QrEMailInputTextEditPrivate::onEnter()
-{
-    auto selectIndex = listview->selectionModel()->currentIndex();
-    if (! selectIndex.isValid()) {
-        return false;
-    }
-
-    Q_Q(QrEMailInputTextEdit);
-
-    QTextCursor curTextCursor = q->textCursor();
-
-    auto removeSize = curTextCursor.position()-beginPosOfCurBlock;
-    curTextCursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, removeSize);
-    curTextCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, removeSize);
-
-    curTextCursor.removeSelectedText();
-
-    q->setTextCursor(curTextCursor);
-
-    pasteOneMailbox(listdataProxy->data(selectIndex).toString());
 
     return true;
 }
@@ -313,26 +276,6 @@ void QrEMailInputTextEditPrivate::pasteOneMailbox(const QString& pasteContent)
     updateBeginPosOfCurBlock(curTextCursor.position());
 }
 
-void QrEMailInputTextEditPrivate::moveListView(bool up)
-{
-    if (nullptr == listdata
-            || 0 == listdataProxy->rowCount()
-            || filterValue.isEmpty()) {
-        return;
-    }
-
-    int curRowIdx = listview->selectionModel()->currentIndex().row();
-    if (-1 == curRowIdx) {
-        curRowIdx = 0;
-    }
-    int nextRowIdx = (up ? --curRowIdx : ++ curRowIdx) % listdataProxy->rowCount();
-    if (up && -1 == nextRowIdx) {
-        nextRowIdx = listdataProxy->rowCount() - 1;
-    }
-    listview->selectionModel()->setCurrentIndex(
-                listdataProxy->index(nextRowIdx, 0), QItemSelectionModel::SelectCurrent);
-}
-
 void QrEMailInputTextEditPrivate::emailAdreesIsUnvalid(const QString &emailAddress)
 {
     Q_Q(QrEMailInputTextEdit);
@@ -348,74 +291,6 @@ void QrEMailInputTextEditPrivate::emailAdreesIsExist()
     QMessageBox::information(q,
                              QObject::tr("warning"),
                              QObject::tr(QString("email address is exist.").toStdString().c_str()));
-}
-
-void QrEMailInputTextEditPrivate::onUp()
-{
-    moveListView(true);
-}
-
-void QrEMailInputTextEditPrivate::onDown()
-{
-    moveListView(false);
-}
-
-bool QrEMailInputTextEditPrivate::createDDListView() {
-    Q_Q(QrEMailInputTextEdit);
-
-    if (nullptr != listview) {
-        return false;
-    }
-
-    listview = new QListView(q->parentWidget());
-
-    QObject::connect(q, &QrEMailInputTextEdit::textChanged,
-                     q, &QrEMailInputTextEdit::startTyping);
-    QObject::connect(q, &QrEMailInputTextEdit::startTyping, [this](){
-        Q_Q(QrEMailInputTextEdit);
-
-        QTextCursor filterValueCursor = q->textCursor();
-        int filterValueWidth = filterValueCursor.position() - beginPosOfCurBlock;
-        filterValueCursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor,
-                                       filterValueWidth);
-        filterValueCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor,
-                                       filterValueWidth);
-        filterValue = filterValueCursor.selectedText();
-
-        if (filterValue.isEmpty()) {
-            listview->hide();
-            return;
-        }
-
-        auto qPos = q->mapToGlobal(q->pos());
-        qPos.setY(qPos.y() + q->height());
-        listview->move(qPos);
-
-        listdataProxy->setFilterRegExp(filterValue);
-        listview->show();
-    });
-    QObject::connect(q, &QrEMailInputTextEdit::finishTyping,
-                     listview, &QListView::hide);
-
-
-    listview->setWindowFlags(Qt::CustomizeWindowHint
-                             | Qt::FramelessWindowHint
-                             | Qt::Tool);
-    listview->resize(q->width(), q->height());
-
-    listdataProxy = new QrMailboxFilterProxyModel(listview);
-    Q_ASSERT(nullptr != listdata);
-    listdataProxy->setSourceModel(listdata);
-    listdataProxy->setFilterKeyColumn(0);
-    listdataProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-
-    listview->setModel(listdataProxy);
-    listview->setFocusPolicy(Qt::NoFocus);
-    listview->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    listview->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    listview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    return true;
 }
 
 bool QrEMailInputTextEditPrivate::isValidEmail(const QString &emailAddr)
@@ -438,8 +313,6 @@ QrEMailInputTextEdit::QrEMailInputTextEdit(QWidget *parent)
     : QTextEdit(parent),
       d_ptr(new QrEMailInputTextEditPrivate(this))
 {
-    parent->installEventFilter(this);
-
     d_ptr->updateBeginPosOfCurBlock(textCursor().position());
 
     setUndoRedoEnabled(false);  //  disable undo
@@ -453,77 +326,62 @@ QrEMailInputTextEdit::QrEMailInputTextEdit(QWidget *parent)
                   .arg(colorToString(highlightColor), colorToString(highlightedTextColor)));
 }
 
-bool QrEMailInputTextEdit::showDropDownList(QStandardItemModel *listData)
-{
-    if (nullptr == listData) {
-        return false;
-    }
-
-    Q_D(QrEMailInputTextEdit);
-
-    d->listdata = listData;
-    return d->createDDListView();
-}
-
-void QrEMailInputTextEdit::setHeightOfDDList(int height)
+void QrEMailInputTextEdit::enterClickFromDDList(const QString &ddlistValue)
 {
     Q_D(QrEMailInputTextEdit);
-    d->listview->resize(d->listview->width(), height);
+
+    QTextCursor curTextCursor = textCursor();
+
+    auto removeSize = curTextCursor.position()-d->beginPosOfCurBlock;
+    curTextCursor.movePosition(QTextCursor::Left,
+                               QTextCursor::MoveAnchor,
+                               removeSize);
+    curTextCursor.movePosition(QTextCursor::Right,
+                               QTextCursor::KeepAnchor,
+                               removeSize);
+    curTextCursor.removeSelectedText();
+
+    setTextCursor(curTextCursor);
+
+    d->pasteOneMailbox(ddlistValue);
 }
 
-void QrEMailInputTextEdit::keyPressEvent(QKeyEvent *event)
+bool QrEMailInputTextEdit::keyPress(QKeyEvent *event)
 {
     Q_D(QrEMailInputTextEdit);
 
     switch(event->key()){
     case Qt::Key_Left:
         if (d->onLeft()) {
-            return;
+            return true;
         }
-        break;
     case Qt::Key_Right:
         if (d->onRight()) {
-            return;
+            return true;
         }
-        break;
-    case Qt::Key_Up:
-        d->onUp();
-        return;
-    case Qt::Key_Down:
-        d->onDown();
-        return;
     case Qt::Key_Semicolon:
         d->onSemicolon();
-        return;
+        return true;
     case Qt::Key_Backspace:
         if( d->onBackspace()){
-            return;
+            return true;
         }
-        break;
-    case Qt::Key_Enter:
-    case Qt::Key_Return:
-        if( d->onEnter()){
-            return;
-        }
-        break;
-        break;
     }
 
     if (event->matches(QKeySequence::Paste)) {
         d->onPaste();
-        return;
+        return true;
     } else if(event->matches(QKeySequence::Delete)
               || event->matches(QKeySequence::Undo)
               || event->matches(QKeySequence::Redo)) {
-        return;
+        return true;
     }
 
-    QTextEdit::keyPressEvent(event);
+    return false;
 }
 
 void QrEMailInputTextEdit::mousePressEvent(QMouseEvent *event)
 {
-    qDebug() << "mousePressEvent";
     Q_D(QrEMailInputTextEdit);
 
     QTextCursor cursor = cursorForPosition(event->pos());
@@ -573,16 +431,4 @@ void QrEMailInputTextEdit::mouseMoveEvent(QMouseEvent *event)
 
         setTextCursor(cursor);
     }
-}
-
-bool QrEMailInputTextEdit::eventFilter(QObject *target, QEvent *event)
-{
-    qDebug() << event;
-    if (parent() == target
-            && event->type() == QEvent::Move) {
-        QMoveEvent *moveEvent = static_cast<QMoveEvent*>(event);
-        qDebug() << "parent moving..  " << moveEvent->pos();
-    }
-
-    return QTextEdit::eventFilter(target, event);
 }

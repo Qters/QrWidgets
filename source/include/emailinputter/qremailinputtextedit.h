@@ -32,27 +32,20 @@ class QRWIDGETSSHARED_EXPORT QrEMailInputTextEdit : public QTextEdit
     QR_DECLARE_PRIVATE(QrEMailInputTextEdit)
 
 public:
-    QrEMailInputTextEdit(QWidget *parent);
+    QrEMailInputTextEdit(QWidget *parent = 0);
 
 Q_SIGNALS:
-    void startTyping();
+    void startTyping(int beginPositionOfBlock);
     void finishTyping();
 
 public:
-    //  use contacts drop-down list
-    bool showDropDownList(QStandardItemModel *listData);
-    //  set height of drop-down list
-    void setHeightOfDDList(int height);
+    bool keyPress(QKeyEvent *event);
+    void enterClickFromDDList(const QString& ddlistValue);
 
     // QWidget interface
 protected:
-    void keyPressEvent(QKeyEvent *event);
     void mousePressEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
-
-    // QObject interface
-public:
-    virtual bool eventFilter(QObject *, QEvent *) override;
 };
 
 NS_QRWIDGETS_END

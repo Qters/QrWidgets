@@ -40,7 +40,7 @@ void QrEmailInputterPrivate::initLayout() {
 
     listview = new QListView(q);
     listview->installEventFilter(q);
-    listview->setWindowFlags(Qt::FramelessWindowHint);
+    listview->setWindowFlags(Qt::FramelessWindowHint | Qt::Popup | Qt::Tool );
 
     listdataProxy = new QrMailboxFilterProxyModel(listview);
     listdataProxy->setFilterKeyColumn(0);
@@ -112,10 +112,13 @@ bool QrEmailInputterPrivate::upDownListView(bool up)
     return true;
 }
 
-void QrEmailInputterPrivate::showListView() {
+void QrEmailInputterPrivate::showListView()
+{
+    listview->resize(textedit->size());
+
     auto qPos = textedit->mapToGlobal(textedit->pos());
     qPos.setY(qPos.y() + textedit->height());
-    listview->move(qPos);
+    listview->move(qPos - QPoint(10,10));
 
     listview->show();
 }
@@ -128,8 +131,6 @@ QrEmailInputter::QrEmailInputter(QWidget *parent)
     : QWidget(parent),
       d_ptr(new QrEmailInputterPrivate(this))
 {
-    setAttribute(Qt::WA_DeleteOnClose);
-
     Q_D(QrEmailInputter);
     d->initLayout();
     d->connectListView();
@@ -142,8 +143,6 @@ void QrEmailInputter::setDDListData(QStandardItemModel *listData)
     Q_D(QrEmailInputter);
     d->listdata = listData;
     d->listdataProxy->setSourceModel(d->listdata);
-
-    d->listview->resize(width(), height());
 }
 
 void QrEmailInputter::setHeightOfDDList(int height)

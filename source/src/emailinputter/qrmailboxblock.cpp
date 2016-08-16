@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <QtCore/qdebug.h>
+
 USING_NS_QRWIDGETS;
 
 QString QrMailBlock::formatDisplayByName(const QString &name) {
@@ -32,6 +34,16 @@ QStringList QrMailboxBlockContainer::getNames()
         meetingees.push_back(elem.name);
     }
     return meetingees;
+}
+
+int QrMailboxBlockContainer::size() const
+{
+    return meetingeeBlocks.size();
+}
+
+const QrMailBlock &QrMailboxBlockContainer::lastBlock() const
+{
+    return meetingeeBlocks.last();
 }
 
 bool QrMailboxBlockContainer::contains(const QrMailBlock &value) {
@@ -98,6 +110,16 @@ bool QrMailboxBlockContainer::currentBlock(int postionContained,
     }, value);
 }
 
+void QrMailboxBlockContainer::updatePosWhenInputOneKey(int keyPosition)
+{
+    updatePositionWhenKeyPress(keyPosition, true);
+}
+
+void QrMailboxBlockContainer::updatePosWhenDeleteOneKey(int keyPosition)
+{
+    updatePositionWhenKeyPress(keyPosition, false);
+}
+
 bool QrMailboxBlockContainer::find(std::function<bool (QrMailBlock)> func, QrMailBlock *value) {
     auto blockFind = std::find_if(meetingeeBlocks.begin(), meetingeeBlocks.end(), func);
     if ( blockFind != meetingeeBlocks.end() ) {
@@ -115,16 +137,53 @@ void QrMailboxBlockContainer::updatePositionBeforeRemove(const QrMailBlock& remo
         return;
     }
 
-    QrMailBlock tempParam = removed;
-    QrMailBlock *preBlock = &tempParam;
+    int beginPosOfPreBlock = removed.beginPos;
     for(++updateIdx; updateIdx < meetingeeBlocks.size(); ++updateIdx) {
         QrMailBlock& curBlock = meetingeeBlocks[updateIdx];
+        int tempValue = curBlock.beginPos;
 
         int width = curBlock.endPos - curBlock.beginPos;
-        curBlock.beginPos = preBlock->beginPos;
+        curBlock.beginPos = beginPosOfPreBlock;
         curBlock.endPos = curBlock.beginPos + width;
         curBlock.nextPos = curBlock.endPos + 1;
 
-        preBlock = &curBlock;
+        beginPosOfPreBlock = tempValue;
+    }
+}
+
+void QrMailboxBlockContainer::updatePositionWhenKeyPress(int keyPosition, bool inputOrDelete) {
+    if (meetingeeBlocks.isEmpty()) {
+        return;
+    }
+
+    int findIdx = 0;
+    if (keyPosition > meetingeeBlocks.first().beginPos) {
+        for (; findIdx < meetingeeBlocks.count() - 1; ++findIdx) {
+            auto left = meetingeeBlocks.at(findIdx);
+            auto right = meetingeeBlocks.at(findIdx+1);
+            if (left.endPos < keyPosition
+                    && right.beginPos >= keyPosition) { //  (left.endPos, right.beginPos]
+                ++findIdx;
+                break;
+            }
+        }
+
+        if (findIdx == meetingeeBlocks.count()) {
+            qDebug() << "update error" << keyPosition;
+            return;
+        }
+    }
+
+    for (; findIdx < meetingeeBlocks.count(); ++findIdx) {
+        auto& curBlock = meetingeeBlocks[findIdx];
+        if (inputOrDelete) {    //  input
+            ++curBlock.beginPos;
+            ++curBlock.endPos;
+            ++curBlock.nextPos;
+        } else {    //  delete
+            --curBlock.beginPos;
+            --curBlock.endPos;
+            --curBlock.nextPos;
+        }
     }
 }

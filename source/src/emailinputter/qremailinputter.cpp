@@ -81,6 +81,10 @@ void QrEmailInputterPrivate::connectListView() {
         }
         listdataProxy->setFilterRegExp(filteredValue);
 
+        if (0 == listdataProxy->rowCount()) {
+            listview->hide();
+            return;
+        }
         showListView();
     });
     QObject::connect(textedit, &QrEMailInputTextEdit::finishTyping, [this](){
@@ -156,11 +160,6 @@ bool QrEmailInputter::keyPress(QKeyEvent *event)
     Q_D(QrEmailInputter);
 
     switch(event->key()){
-    case Qt::Key_Left:
-    case Qt::Key_Right:
-    case Qt::Key_Semicolon:
-    case Qt::Key_Backspace:
-        return d->textedit->keyPress(event);
     case Qt::Key_Return:
     case Qt::Key_Enter:
         if (! d->listview->selectionModel()->currentIndex().isValid()) {
@@ -177,14 +176,7 @@ bool QrEmailInputter::keyPress(QKeyEvent *event)
         return d->upDownListView(false);
     }
 
-    if (event->matches(QKeySequence::Paste)
-            || event->matches(QKeySequence::Delete)
-            || event->matches(QKeySequence::Undo)
-            || event->matches(QKeySequence::Redo)) {
-        return d->textedit->keyPress(event);
-    }
-
-    return false;
+    return d->textedit->keyPress(event);
 }
 
 bool QrEmailInputter::eventFilter(QObject *target, QEvent *event)

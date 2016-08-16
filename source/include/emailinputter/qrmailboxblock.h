@@ -35,6 +35,10 @@ public:
     QStringList getNames();
 
     //
+    int size() const;
+    const QrMailBlock& lastBlock() const;
+
+    //
     bool contains(const QrMailBlock& value);
     bool containName(const QString& name);
 
@@ -60,10 +64,20 @@ public:
      * \return
      */
     bool currentBlock(int postionContained, QrMailBlock *value, int offset = 0);
+    //
+    void updatePosWhenInputOneKey(int keyPosition);
+    //
+    void updatePosWhenDeleteOneKey(int keyPosition);
 
 private:
     bool find(std::function<bool(QrMailBlock)> func, QrMailBlock *value);
     void updatePositionBeforeRemove(const QrMailBlock& removed);
+    /*!
+     * \brief	update block's position when key press
+     * \param keyPosition
+     * \param inputOrDelete	true for input, false for delete
+     */
+    void updatePositionWhenKeyPress(int keyPosition, bool inputOrDelete = true);
 
 private:
     MeetingeeBlockVector meetingeeBlocks;

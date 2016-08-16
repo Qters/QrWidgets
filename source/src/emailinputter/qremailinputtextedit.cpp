@@ -93,6 +93,7 @@ bool QrEMailInputTextEditPrivate::onLeft()
                                curTextCursor.position() - preBlock.beginPos);
     q->setTextCursor(curTextCursor);
 
+    updateBeginPosOfCurBlock(curTextCursor.position());
     return true;
 }
 
@@ -110,6 +111,8 @@ bool QrEMailInputTextEditPrivate::onRight()
     curTextCursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor,
                                curBlock.endPos - curTextCursor.position() + 1);
     q->setTextCursor(curTextCursor);
+
+    updateBeginPosOfCurBlock(curTextCursor.position());
 
     return true;
 }
@@ -257,7 +260,6 @@ void QrEMailInputTextEditPrivate::pasteOneMailbox(const QString& pasteContent)
         return;
     }
 
-
     QTextCursor curTextCursor = q->textCursor();
     int curPosition = curTextCursor.position();
 
@@ -281,7 +283,7 @@ void QrEMailInputTextEditPrivate::emailAdreesIsUnvalid(const QString &emailAddre
     Q_Q(QrEMailInputTextEdit);
     QMessageBox::information(q,
                              QObject::tr("warning"),
-                             QObject::tr(QString("[%1]email address is unvalid.")
+                             QObject::tr(QString("[%1] email address is unvalid.")
                                          .arg(emailAddress).toStdString().c_str()));
 }
 
@@ -350,31 +352,53 @@ bool QrEMailInputTextEdit::keyPress(QKeyEvent *event)
 {
     Q_D(QrEMailInputTextEdit);
 
+    bool deleteKeyPress = false;
+    bool insertKeyPress = false;
+
     switch(event->key()){
     case Qt::Key_Left:
         if (d->onLeft()) {
             return true;
         }
+        break;
     case Qt::Key_Right:
         if (d->onRight()) {
             return true;
         }
+        break;
     case Qt::Key_Semicolon:
+        insertKeyPress = true;
         d->onSemicolon();
         return true;
     case Qt::Key_Backspace:
+        deleteKeyPress = true;
         if( d->onBackspace()){
             return true;
         }
+        break;
+    default:
+        insertKeyPress = true;
+        break;
     }
 
     if (event->matches(QKeySequence::Paste)) {
+        insertKeyPress = true;
         d->onPaste();
         return true;
     } else if(event->matches(QKeySequence::Delete)
               || event->matches(QKeySequence::Undo)
               || event->matches(QKeySequence::Redo)) {
         return true;
+    }
+
+    auto curPosition = textCursor().position();
+    if ( d->meetingeeContainer.size() > 0    //  container have elements
+         && d->meetingeeContainer.lastBlock().endPos >= curPosition ) {	//	not change in the end block
+        if (deleteKeyPress) {    //  delete a character
+            d->meetingeeContainer.updatePosWhenDeleteOneKey(curPosition);
+        } else if (insertKeyPress) {    //  input a character
+            d->meetingeeContainer.updatePosWhenInputOneKey(curPosition);
+        }
     }
 
     return false;

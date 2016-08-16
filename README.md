@@ -1,4 +1,10 @@
 # QrWidgets
 
 ## waiting spinner
-![loading widget](http://img.hoop8.com/1607C/hw9o0lMZ.png)
+![loading widget](https://i.imgsafe.org/323852f685.png)
+
+## toast
+![toast](https://i.imgsafe.org/323f2d1a5b.png)
+
+## email inputter
+![email inputter](https://i.imgsafe.org/32668763d5.png)

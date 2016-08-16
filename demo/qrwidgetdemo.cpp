@@ -1,6 +1,7 @@
 #include "qrwidgetdemo.h"
 #include "ui_qrwidgetdemo.h"
 
+#include "toast/qrtoastdemo.h"
 #include "waitingspinner/waitingspinnerwidget.h"
 #include "emailinputter/emailinputterwidget.h"
 
@@ -30,6 +31,12 @@ QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
 
         widgetDoModelFunc(&emailInputter);
 
+    });
+    connect(ui->toast, &QPushButton::clicked, [this, widgetDoModelFunc](){
+        QrToastDemo toastDemo;
+        toastDemo.show();
+
+        widgetDoModelFunc(&toastDemo);
     });
 }
 

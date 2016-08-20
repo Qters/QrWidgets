@@ -140,6 +140,10 @@ bool QrEditableLabel::eventFilter(QObject *target, QEvent *event)
             return QWidget::eventFilter(target, event);
         }
 
+        if (d->label->text() != d->textedit->toPlainText()) {
+            emit textChanged(d->textedit->toPlainText());
+        }
+
         d->switchState(true);
         event->accept();
         return true;

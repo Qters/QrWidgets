@@ -4,12 +4,15 @@
 #include "toast/qrtoastdemo.h"
 #include "waitingspinner/waitingspinnerwidget.h"
 #include "emailinputter/emailinputterwidget.h"
+#include "editablelabel/editablelabelwidget.h"
 
 QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QrWidgetDemo)
 {
     ui->setupUi(this);
+
+    setWindowTitle("QrWidgets Demo");
 
     auto widgetDoModelFunc = [this](QWidget *widget){
         QEventLoop eventloop;
@@ -37,6 +40,12 @@ QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
         toastDemo.show();
 
         widgetDoModelFunc(&toastDemo);
+    });
+    connect(ui->editableLabel, &QPushButton::clicked, [this, widgetDoModelFunc](){
+        EditableLabelWidget editableLabel;
+        editableLabel.show();
+
+        widgetDoModelFunc(&editableLabel);
     });
 }
 

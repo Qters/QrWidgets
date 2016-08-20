@@ -23,7 +23,7 @@ QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
 
     connect(ui->waitingspinner, &QPushButton::clicked, [this, widgetDoModelFunc](){
         WaitingSpinnerWidget waitingspinner;
-        waitingspinner.setAttribute( Qt::WA_DeleteOnClose );
+//        waitingspinner.setAttribute( Qt::WA_DeleteOnClose );
         waitingspinner.show();
 
         widgetDoModelFunc(&waitingspinner);

@@ -11,16 +11,18 @@ EmailInputterWidget::EmailInputterWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setWindowTitle("demo - email inputter");
+
     QStandardItemModel *listData = new QStandardItemModel();
 
     QStandardItem *rootItem = listData->invisibleRootItem();
-    QStandardItem *item1 = new QStandardItem("yuyj@fsmeeting.com");
+    QStandardItem *item1 = new QStandardItem("iamyoer@gmail.com");
     rootItem->appendRow(item1);
-    QStandardItem *item2 = new QStandardItem("chensy@fsmeeting.com");
+    QStandardItem *item2 = new QStandardItem("iamyoer2@gmail.com");
     rootItem->appendRow(item2);
-    QStandardItem *item3 = new QStandardItem("chenhk@fsmeeting.com");
+    QStandardItem *item3 = new QStandardItem("qters@gmail.com");
     rootItem->appendRow(item3);
-    QStandardItem *item4 = new QStandardItem("adam@fsmeeting.com");
+    QStandardItem *item4 = new QStandardItem("iamyoer@hotmail.com");
     rootItem->appendRow(item4);
 
     ui->widget->setDDListData(listData);

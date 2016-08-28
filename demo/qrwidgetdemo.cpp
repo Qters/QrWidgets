@@ -4,6 +4,7 @@
 #include "toast/qrtoastdemo.h"
 #include "waitingspinner/waitingspinnerwidget.h"
 #include "emailinputter/emailinputterwidget.h"
+#include "layout/queuelayout/controlwidget.h"
 
 QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
     QWidget(parent),
@@ -37,6 +38,12 @@ QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
         toastDemo.show();
 
         widgetDoModelFunc(&toastDemo);
+    });
+    connect(ui->queuelayout, &QPushButton::clicked, [this, widgetDoModelFunc](){
+        QueueControlWidget queueLayoutDemo;
+        queueLayoutDemo.show();
+
+        widgetDoModelFunc(&queueLayoutDemo);
     });
 }
 

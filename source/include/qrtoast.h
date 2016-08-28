@@ -1,5 +1,5 @@
-#ifndef EZTOAST_H
-#define EZTOAST_H
+#ifndef QRTOAST_H
+#define QRTOAST_H
 
 #include <QtCore/qobject.h>
 
@@ -38,4 +38,4 @@ protected:
 
 NS_QRWIDGETS_END
 
-#endif // EZTOAST_H
+#endif // QRTOAST_H

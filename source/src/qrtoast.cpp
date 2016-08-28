@@ -36,8 +36,8 @@ void QrToast::show(const QString &msg, const QPoint &point, int msecs /*= 3000*/
 
     QLabel *toast = new QLabel(nullptr, Qt::Popup | Qt::ToolTip | Qt::Tool);
 //    toast->setObjectName("toast");
-    toast->setStyleSheet("color : white; "
-                         "background-color : black;"
+    toast->setStyleSheet("color : black; "
+                         "background-color : (255,255,255,0.5);"
                          "text-align : center; "
                          "padding : 5px 10px;");
     toast->setText(msg);

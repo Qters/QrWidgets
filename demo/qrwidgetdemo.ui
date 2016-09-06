@@ -23,6 +23,20 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="0">
+     <widget class="QPushButton" name="toast">
+      <property name="text">
+       <string>toast</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QPushButton" name="editableLabel">
+      <property name="text">
+       <string>editable label</string>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
      <widget class="QPushButton" name="waitingspinner">
       <property name="text">
@@ -37,17 +51,10 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0">
-     <widget class="QPushButton" name="toast">
+    <item row="2" column="0">
+     <widget class="QPushButton" name="queuelayout">
       <property name="text">
-       <string>toast</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QPushButton" name="editableLabel">
-      <property name="text">
-       <string>editable label</string>
+       <string>queue layout</string>
       </property>
      </widget>
     </item>

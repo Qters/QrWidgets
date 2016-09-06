@@ -4,6 +4,7 @@
 #include "toast/qrtoastdemo.h"
 #include "waitingspinner/waitingspinnerwidget.h"
 #include "emailinputter/emailinputterwidget.h"
+#include "layout/queuelayout/controlwidget.h"
 #include "editablelabel/editablelabelwidget.h"
 
 QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
@@ -40,6 +41,12 @@ QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
         toastDemo.show();
 
         widgetDoModelFunc(&toastDemo);
+    });
+    connect(ui->queuelayout, &QPushButton::clicked, [this, widgetDoModelFunc](){
+        QueueControlWidget queueLayoutDemo;
+        queueLayoutDemo.show();
+
+        widgetDoModelFunc(&queueLayoutDemo);
     });
     connect(ui->editableLabel, &QPushButton::clicked, [this, widgetDoModelFunc](){
         EditableLabelWidget editableLabel;

@@ -6,6 +6,8 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 
+#include <QtCore/qdebug.h>
+
 NS_QRWIDGETS_BEGIN
 class QrToastPrivate{
 public:

@@ -2,8 +2,9 @@
 
 #include <QtWidgets/qtextedit.h>
 #include <QtWidgets/qlayout.h>
-#include <QtCore/QEvent>
-#include <qdebug.h>
+#include <QtCore/qcoreevent.h>
+#include <QtGui/qevent.h>
+#include <QtCore/qdebug.h>
 
 #include "qrclicklabel.h"
 
@@ -18,6 +19,7 @@ public:
     void switchState(bool toLabel);
 
 public:
+    bool enterToFinish = true;
     bool created = false;
     bool editable = true;
 
@@ -123,6 +125,18 @@ QString QrEditableLabel::text() const
     return d->label->text();
 }
 
+void QrEditableLabel::handSwitch(bool toLabel)
+{
+    Q_D(QrEditableLabel);
+    d->switchState(toLabel);
+}
+
+void QrEditableLabel::setEnterToFinish(bool enterToFinish)
+{
+    Q_D(QrEditableLabel);
+    d->enterToFinish = enterToFinish;
+}
+
 void QrEditableLabel::setEditable(bool editable)
 {
     Q_D(QrEditableLabel);
@@ -133,20 +147,31 @@ bool QrEditableLabel::eventFilter(QObject *target, QEvent *event)
 {
     Q_D(QrEditableLabel);
     if(d->editable
-            && target == d->textedit
-            && QEvent::FocusOut == event->type()) {
-        if (! d->textRegexp.isEmpty()
-                && ! d->textRegexp.exactMatch(d->textedit->toPlainText())) {
-            return QWidget::eventFilter(target, event);
-        }
+            && target == d->textedit ) {
+        switch(event->type()) {
+        case QEvent::FocusOut:
+            if (! d->textRegexp.isEmpty()
+                    && ! d->textRegexp.exactMatch(d->textedit->toPlainText())) {
+                return QWidget::eventFilter(target, event);
+            }
 
-        if (d->label->text() != d->textedit->toPlainText()) {
-            emit textChanged(d->textedit->toPlainText());
+            if (d->label->text() != d->textedit->toPlainText()) {
+                emit textChanged(d->textedit->toPlainText());
+            }
+            d->switchState(true);
+            event->accept();
+            return true;
+            break;
+        case QEvent::KeyPress:
+            if (d->enterToFinish &&
+                    (Qt::Key_Return == static_cast<QKeyEvent*>(event)->key()
+                    ||	Qt::Key_Enter == static_cast<QKeyEvent*>(event)->key())) {
+                d->switchState(true);
+                event->accept();
+                return true;
+                break;
+            }
         }
-
-        d->switchState(true);
-        event->accept();
-        return true;
     }
 
     return QWidget::eventFilter(target, event);

@@ -32,6 +32,10 @@ public:
     void setText(const QString& text);
     QString text() const;
 
+    void handSwitch(bool toLabel);
+
+    void setEnterToFinish(bool enterToFinish);
+
     // QObject interface
 public:
     virtual bool eventFilter(QObject *, QEvent *) override;

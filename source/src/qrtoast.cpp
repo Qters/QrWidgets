@@ -32,8 +32,10 @@ void QrToast::show(const QString &msg, const QPoint &point, int msecs /*= 3000*/
 {
     Q_D(QrToast);
 
-    QLabel *toast = new QLabel(nullptr, Qt::Popup | Qt::ToolTip | Qt::Tool);
-//    toast->setObjectName("toast");
+    QLabel *toast = new QLabel(nullptr, Qt::FramelessWindowHint
+                               | Qt::NoDropShadowWindowHint
+                               | Qt::Tool
+                               | Qt::WindowStaysOnTopHint);
     toast->setStyleSheet("color : black; "
                          "background-color : (255,255,255,0.5);"
                          "text-align : center; "
@@ -43,7 +45,7 @@ void QrToast::show(const QString &msg, const QPoint &point, int msecs /*= 3000*/
     toast->setAttribute(Qt::WA_DeleteOnClose);
     QObject::connect(toast, SIGNAL(destroyed()), toast, SLOT(close()));
 
-    toast->move(point);
+    toast->move(point - toast->rect().center());
     toast->show();
 
     int timeId = startTimer(msecs);

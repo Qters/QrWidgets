@@ -4,7 +4,7 @@
 #include "toast/qrtoastdemo.h"
 #include "waitingspinner/waitingspinnerwidget.h"
 #include "emailinputter/emailinputterwidget.h"
-#include "layout/queuelayout/controlwidget.h"
+#include "layout/queuelayout/queuecontrolwidget.h"
 #include "editablelabel/editablelabelwidget.h"
 
 QrWidgetDemo::QrWidgetDemo(QWidget *parent) :

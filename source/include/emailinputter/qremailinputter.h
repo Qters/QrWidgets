@@ -29,6 +29,13 @@ public:
     //  set height of drop-down list
     void setHeightOfDDList(int height);
 
+    void setMoveBy(QWidget *widget);
+
+    QString text() const;
+    void clear();
+    //
+    void handSemicolon();
+
 private:
     bool keyPress(QKeyEvent *event) ;
 

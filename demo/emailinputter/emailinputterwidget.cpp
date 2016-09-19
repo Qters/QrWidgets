@@ -26,6 +26,8 @@ EmailInputterWidget::EmailInputterWidget(QWidget *parent) :
     rootItem->appendRow(item4);
 
     ui->widget->setDDListData(listData);
+
+    ui->widget->setMoveBy(this);
 }
 
 EmailInputterWidget::~EmailInputterWidget()

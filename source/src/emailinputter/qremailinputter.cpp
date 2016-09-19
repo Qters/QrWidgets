@@ -23,6 +23,8 @@ public:
     QStandardItemModel *listdata = nullptr;
     QrMailboxFilterProxyModel *listdataProxy = nullptr;
 
+    QWidget *moveBy = nullptr;
+
 public:
     QrEmailInputterPrivate(QrEmailInputter *q) : q_ptr(q) {}
 
@@ -36,6 +38,7 @@ public:
 void QrEmailInputterPrivate::initLayout() {
     Q_Q(QrEmailInputter);
     textedit = new QrEMailInputTextEdit(q);
+    textedit->setTabChangesFocus(true);
     textedit->installEventFilter(q);
 
     listview = new QListView(q);
@@ -120,11 +123,12 @@ bool QrEmailInputterPrivate::upDownListView(bool up)
 
 void QrEmailInputterPrivate::showListView()
 {
+    Q_Q(QrEmailInputter);
     listview->resize(textedit->size());
 
-    auto qPos = textedit->mapToGlobal(textedit->pos());
+    auto qPos = q->mapToGlobal(textedit->pos());
     qPos.setY(qPos.y() + textedit->height());
-    listview->move(qPos - QPoint(10,10));
+    listview->move(qPos);
 
     listview->show();
 }
@@ -140,6 +144,10 @@ QrEmailInputter::QrEmailInputter(QWidget *parent)
     Q_D(QrEmailInputter);
     d->initLayout();
     d->connectListView();
+
+    if (nullptr != parent) {
+        setMoveBy(parent);
+    }
 }
 
 void QrEmailInputter::setDDListData(QStandardItemModel *listData)
@@ -155,6 +163,36 @@ void QrEmailInputter::setHeightOfDDList(int height)
 {
     Q_D(QrEmailInputter);
     d->listview->resize(d->listview->width(), height);
+}
+
+void QrEmailInputter::setMoveBy(QWidget *widget)
+{
+    Q_D(QrEmailInputter);
+    d->moveBy = widget;
+    d->moveBy->installEventFilter(this);
+}
+
+QString QrEmailInputter::text() const
+{
+    Q_D(const QrEmailInputter);
+    return d->textedit->toPlainText();
+}
+
+void QrEmailInputter::clear()
+{
+    Q_D(const QrEmailInputter);
+    d->textedit->clear();
+}
+
+void QrEmailInputter::handSemicolon()
+{
+    Q_D(QrEmailInputter);
+
+    auto rawEmailsText = d->textedit->toPlainText();
+    if (! rawEmailsText.endsWith(';')) {
+        QKeyEvent semicolonKeyEvent(QEvent::KeyPress, Qt::Key_Semicolon, Qt::NoModifier);
+        d->textedit->keyPress(&semicolonKeyEvent);
+    }
 }
 
 bool QrEmailInputter::keyPress(QKeyEvent *event)
@@ -184,11 +222,28 @@ bool QrEmailInputter::keyPress(QKeyEvent *event)
 bool QrEmailInputter::eventFilter(QObject *target, QEvent *event)
 {
     Q_D(QrEmailInputter);
-    if (d->textedit == target
-            && event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        if (keyPress(keyEvent)) {
-            return true;
+    if (d->textedit == target) {
+        switch (event->type()) {
+        case QEvent::KeyPress:
+            if (keyPress(static_cast<QKeyEvent*>(event))) {
+                return true;
+            }
+            break;
+        case QEvent::FocusOut:
+            handSemicolon();
+            d->listview->hide();
+            break;
+        }
+    }
+
+    if (d->moveBy == target
+            && (QEvent::MouseButtonRelease == event->type()
+                || QEvent::NonClientAreaMouseButtonRelease == event->type())) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        if (Qt::LeftButton == mouseEvent->button()) {
+            if (d->listview->isVisible()) {
+                d->showListView();
+            }
         }
     }
 

@@ -6,7 +6,7 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qdebug.h>
 
-#include "qrclicklabel.h"
+#include "qrlabel.h"
 
 NS_QRWIDGETS_BEGIN
 
@@ -25,7 +25,7 @@ public:
 
     QRegExp textRegexp;
     QTextEdit *textedit = nullptr;
-    QrClickLabel *label = nullptr;
+    QrLabel *label = nullptr;
 };
 
 QrEditableLabelPrivate::QrEditableLabelPrivate(bool editable,
@@ -35,9 +35,9 @@ QrEditableLabelPrivate::QrEditableLabelPrivate(bool editable,
 void QrEditableLabelPrivate::initLayout() {
     Q_Q(QrEditableLabel);
 
-    label = new QrClickLabel(q);
+    label = new QrLabel(q);
     label->setCursor(editable ? Qt::PointingHandCursor : Qt::ArrowCursor);
-    QObject::connect(label, &QrClickLabel::clicked, [this](){
+    QObject::connect(label, &QrLabel::clicked, [this](){
         switchState(false);
     });
 

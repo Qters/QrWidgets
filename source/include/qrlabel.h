@@ -1,5 +1,5 @@
-#ifndef QRCLICKLABEL_H
-#define QRCLICKLABEL_H
+#ifndef QRLABEL_H
+#define QRLABEL_H
 
 #include <QLabel>
 
@@ -9,19 +9,24 @@
 
 NS_QRWIDGETS_BEGIN
 
-class QrClickLabelPrivate;
+class QrLabelPrivate;
 
-class QRWIDGETSSHARED_EXPORT QrClickLabel :public QLabel
+class QRWIDGETSSHARED_EXPORT QrLabel : public QLabel
 {
     Q_OBJECT
 
-    QR_DECLARE_PRIVATE(QrClickLabel)
+    QR_DECLARE_PRIVATE(QrLabel)
 
 public:
-    QrClickLabel(QWidget *parent = Q_NULLPTR);
+    QrLabel(QWidget *parent = Q_NULLPTR);
 
-signals:
+Q_SIGNALS:
+    void stateChanged(int);
     void clicked();
+
+public:
+    int getState() const;
+    void setState(int value);
 
     // QWidget interface
 protected:
@@ -31,4 +36,4 @@ protected:
 
 NS_QRWIDGETS_END
 
-#endif  //  QRCLICKLABEL_H
+#endif  //  QRLABEL_H

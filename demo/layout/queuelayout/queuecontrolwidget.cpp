@@ -1,14 +1,16 @@
-#include "controlwidget.h"
-#include "ui_controlwidget.h"
+#include "queuecontrolwidget.h"
+#include "ui_queuecontrolwidget.h"
 
 #include <QtCore/qdebug.h>
 
 
 QueueControlWidget::QueueControlWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ControlWidget)
+    ui(new Ui::QueueControlWidget)
 {
     ui->setupUi(this);
+
+    setWindowTitle("demo - queue layout");
 
     videosWidget.installEventFilter(this);
 

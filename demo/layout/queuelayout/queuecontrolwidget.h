@@ -6,7 +6,7 @@
 #include "queuewidget.h"
 
 namespace Ui {
-class ControlWidget;
+class QueueControlWidget;
 }
 
 class QueueControlWidget : public QWidget
@@ -26,7 +26,7 @@ private:
 
 private:
     QueueWidget videosWidget;
-    Ui::ControlWidget *ui;
+    Ui::QueueControlWidget *ui;
 };
 
 #endif // QUEUECONTROLWIDGET_H

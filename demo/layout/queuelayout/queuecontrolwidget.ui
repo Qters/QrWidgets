@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ControlWidget</class>
- <widget class="QWidget" name="ControlWidget">
+ <class>QueueControlWidget</class>
+ <widget class="QWidget" name="QueueControlWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

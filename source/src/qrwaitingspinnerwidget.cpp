@@ -166,10 +166,10 @@ void QrWaitingSpinnerWidget::defaultSetting() {
     this->setRoundness(70.0);
     this->setMinimumTrailOpacity(15.0);
     this->setTrailFadePercentage(70.0);
-    this->setNumberOfLines(12);
-    this->setLineLength(15);
-    this->setLineWidth(5);
-    this->setInnerRadius(10);
+    this->setNumberOfLines(20);
+    this->setLineLength(20);
+    this->setLineWidth(2);
+    this->setInnerRadius(18);
     this->setRevolutionsPerSecond(1);
     this->setColor(Qt::white);
 }

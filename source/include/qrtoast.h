@@ -28,6 +28,8 @@ private:
 
 public:
     void show(const QString& msg,
+              int msecs = 3000);
+    void show(const QString& msg,
               const QPoint& point,
               int msecs = 3000);
 

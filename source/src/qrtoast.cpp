@@ -30,6 +30,11 @@ QrToast::QrToast()
 
 }
 
+void QrToast::show(const QString &msg, int msecs)
+{
+    show(msg, qApp->desktop()->screen(qApp->desktop()->primaryScreen())->rect().center(), msecs);
+}
+
 void QrToast::show(const QString &msg, const QPoint &point, int msecs /*= 3000*/)
 {
     Q_D(QrToast);

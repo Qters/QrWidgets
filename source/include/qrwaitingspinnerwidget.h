@@ -84,6 +84,10 @@ public:
 private slots:
     void rotate();
 
+    // QObject interface
+public:
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+
 protected:
     void paintEvent(QPaintEvent *paintEvent);
 

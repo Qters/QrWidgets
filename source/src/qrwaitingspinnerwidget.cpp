@@ -30,6 +30,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // Qt includes
 #include <QPainter>
 #include <QTimer>
+#include <QEvent>
 
 USING_NS_QRWIDGETS;
 
@@ -44,6 +45,9 @@ QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(
       _semiTransparent(semiTransparent) {
     initialize();
 
+    if (nullptr != parent) {
+        parent->installEventFilter(this);
+    }
     if (nullptr != parent && _semiTransparent) {
         resize(parentWidget()->size());
     }
@@ -66,8 +70,11 @@ QrWaitingSpinnerWidget::QrWaitingSpinnerWidget(
     // the widget is visible has no effect.
     setWindowModality(modality);
     setAttribute(Qt::WA_TranslucentBackground);
-	
-	if (nullptr != parent && _semiTransparent) {
+
+    if (nullptr != parent) {
+        parent->installEventFilter(this);
+    }
+    if (nullptr != parent && _semiTransparent) {
         resize(parentWidget()->size());
     }
 }
@@ -262,6 +269,17 @@ void QrWaitingSpinnerWidget::rotate() {
         _currentCounter = 0;
     }
     update();
+}
+
+bool QrWaitingSpinnerWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    auto parentWidget = qobject_cast<QWidget*>(parent());
+    if (nullptr != parentWidget
+            && parentWidget == watched
+            && QEvent::Resize == event->type()) {
+        resize(parentWidget->size());
+    }
+    return QWidget::eventFilter(watched, event);
 }
 
 void QrWaitingSpinnerWidget::updateSize() {

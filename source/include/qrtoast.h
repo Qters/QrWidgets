@@ -2,6 +2,7 @@
 #define QRTOAST_H
 
 #include <QtCore/qobject.h>
+#include <QtWidgets/qlabel.h>
 
 #include "qrglobal.h"
 
@@ -9,11 +10,23 @@
 
 NS_QRWIDGETS_BEGIN
 
+class QRWIDGETSSHARED_EXPORT QrToastInfo {
+public:
+    int timeout = 1500;
+    QString message;
+    QWidget* widget = nullptr;  //  default value, nullptr mean show in screen
+    QLabel* toast = nullptr;
+
+public:
+    void calcPos(QSize toastSize, QPoint *toastPos, QRect *widgetRect) const;
+};
+
 /*!
  *  qlabel show like toast of android
  *
- * QrToast::instance()->show("msg", QPoint(0, 0), 5000);
+ * QrToast::instance()->showInScreen("msg");
  */
+
 class QrToastPrivate;
 class QRWIDGETSSHARED_EXPORT QrToast : public QObject
 {
@@ -25,13 +38,11 @@ public:
 
 private:
     QrToast();
+    virtual ~QrToast();
 
 public:
-    void show(const QString& msg,
-              int msecs = 3000);
-    void show(const QString& msg,
-              const QPoint& point,
-              int msecs = 3000);
+    void showInScreen(const QString& msg, int msecs = 1500);
+    void showInWidget(QWidget* widget, const QString& msg, int msecs = 1500);
 
     // QObject interface
 protected:

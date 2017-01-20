@@ -17,10 +17,8 @@ QrToastDemo::QrToastDemo(QWidget *parent) :
     this->setWindowTitle("demo - toast");
 
     connect(ui->pushButton, &QPushButton::clicked, [this](){
-        QDesktopWidget *deskdop = QApplication::desktop();
-        QrToast::instance()->show("Toast message",
-                                  QPoint(deskdop->width()/2,
-                                         deskdop->height()/2));
+        QrToast::instance()->showInScreen("Screen Toast message");
+        QrToast::instance()->showInWidget(this, "Widget Toast message");
     });
 }
 

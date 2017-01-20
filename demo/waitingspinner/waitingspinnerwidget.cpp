@@ -19,7 +19,7 @@ WaitingSpinnerWidget::WaitingSpinnerWidget(QWidget *parent) :
     connect(ui->pushButton, &QPushButton::clicked, [this](){
         QrWaitingSpinnerWidget waiting(this);
         waiting.defaultSetting();
-        waiting.start();
+        waiting.start("loading...");
 
         QTimer loadingTime;
         loadingTime.start(4000);

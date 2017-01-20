@@ -57,7 +57,7 @@ public:
                          bool semiTransparent = true);
 
 public slots:
-    void start();
+    void start(const QString& tips = "");
     void stop();
 
 public:
@@ -92,8 +92,10 @@ private slots:
 public:
     virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
+    // QWidget interface
 protected:
-    void paintEvent(QPaintEvent *paintEvent);
+    virtual void paintEvent(QPaintEvent *paintEvent) override;
+    virtual void showEvent(QShowEvent *event) override;
 
 private:
     QrWaitingSpinnerWidget(const QrWaitingSpinnerWidget&);

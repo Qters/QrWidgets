@@ -31,6 +31,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <QPainter>
 #include <QTimer>
 #include <QEvent>
+#include <QtWidgets/qlabel.h>
 
 NS_QRWIDGETS_BEGIN
 
@@ -61,6 +62,9 @@ private:
     bool    disableParentWhenSpinning;
     int     currentCounter;
     bool    isSpinning;
+
+private:
+    QLabel* tipsLabel = nullptr;
 
 private:
     static int lineCountDistanceFromPrimary(int current, int primary,
@@ -136,6 +140,12 @@ void QrWaitingSpinnerWidgetPrivate::initialize()
     Q_Q(QrWaitingSpinnerWidget);
     timer = new QTimer(q);
     q->connect(timer, SIGNAL(timeout()), q, SLOT(rotate()));
+
+    tipsLabel = new QLabel(q);
+    tipsLabel->setStyleSheet("color:white;");
+    tipsLabel->setAlignment(Qt::AlignHCenter);
+    tipsLabel->hide();
+
     updateSize();
     updateTimer();
     q->hide();
@@ -265,11 +275,27 @@ void QrWaitingSpinnerWidget::paintEvent(QPaintEvent *)
     }
 }
 
-void QrWaitingSpinnerWidget::start()
+void QrWaitingSpinnerWidget::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+
+    Q_D(QrWaitingSpinnerWidget);
+    if(d->tipsLabel->isVisible()) {
+        QPoint promptLabelPos = QPoint(rect().center().x() - d->tipsLabel->width()/2 ,
+                                       rect().center().y() + 2 * d->lineLength + d->tipsLabel->height());
+        d->tipsLabel->move(promptLabelPos);
+    }
+}
+
+void QrWaitingSpinnerWidget::start(const QString& tips /*= ""*/)
 {
     Q_D(QrWaitingSpinnerWidget);
     d->updatePosition();
     d->isSpinning = true;
+
+    d->tipsLabel->setText(tips);
+    d->tipsLabel->setVisible(! tips.isEmpty());
+
     show();
 
     if(parentWidget() && d->disableParentWhenSpinning) {

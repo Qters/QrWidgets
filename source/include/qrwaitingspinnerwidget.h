@@ -26,12 +26,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <QTimer>
 #include <QColor>
 
+#include "qrglobal.h"
 #include "qrwidgets_global.h"
 
 NS_QRWIDGETS_BEGIN
 
-class QRWIDGETSSHARED_EXPORT QrWaitingSpinnerWidget : public QWidget {
+class QrWaitingSpinnerWidgetPrivate;
+class QRWIDGETSSHARED_EXPORT QrWaitingSpinnerWidget : public QWidget
+{
     Q_OBJECT
+    QR_DECLARE_PRIVATE(QrWaitingSpinnerWidget)
 
 public:
     /*! Constructor for "standard" widget behaviour - use this
@@ -92,38 +96,8 @@ protected:
     void paintEvent(QPaintEvent *paintEvent);
 
 private:
-    static int lineCountDistanceFromPrimary(int current, int primary,
-                                            int totalNrOfLines);
-    static QColor currentLineColor(int distance, int totalNrOfLines,
-                                   qreal trailFadePerc, qreal minOpacity,
-                                   QColor color);
-
-    void initialize();
-    void updateSize();
-    void updateTimer();
-    void updatePosition();
-
-private:
-    QColor  _color;
-    qreal   _roundness; // 0..100
-    qreal   _minimumTrailOpacity;
-    qreal   _trailFadePercentage;
-    qreal   _revolutionsPerSecond;
-    int     _numberOfLines;
-    int     _lineLength;
-    int     _lineWidth;
-    int     _innerRadius;
-
-private:
     QrWaitingSpinnerWidget(const QrWaitingSpinnerWidget&);
     QrWaitingSpinnerWidget& operator=(const QrWaitingSpinnerWidget&);
-
-    QTimer *_timer;
-    bool    _semiTransparent;
-    bool    _centerOnParent;
-    bool    _disableParentWhenSpinning;
-    int     _currentCounter;
-    bool    _isSpinning;
 };
 
 NS_QRWIDGETS_END

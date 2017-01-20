@@ -1,4 +1,4 @@
-#include "emailinputter/qremailinputtextedit.h"
+﻿#include "emailinputter/qremailinputtextedit.h"
 
 #include <QtCore/qdebug.h>
 #include <QtGui/QKeyEvent>
@@ -6,8 +6,12 @@
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qmessagebox.h>
 #include <QtGui/qclipboard.h>
+#include <QtWidgets/qtooltip.h>
+#include <qcursor.h>
 
 #include "emailinputter/qrmailboxblock.h"
+#include "qrutf8.h"
+#include "qrtoast.h"
 
 NS_QRWIDGETS_BEGIN
 
@@ -16,8 +20,6 @@ class QrEMailInputTextEditPrivate{
 
 public:
     bool isShowList = false;
-    bool mouseClickOnEnd = false;
-    int beginPosOfCurBlock = 0;
     QrMailboxBlockContainer meetingeeContainer;
     QTextCharFormat fmt ;
 
@@ -26,17 +28,14 @@ public:
     ~QrEMailInputTextEditPrivate();
 
 public:
-    //  set cursor on begin of the left email addreess if it exist
+    //  to left email beside
     bool onLeft();
-    //  set cursor on begin of the right email addreess if it exist
+    //  to right email beside
     bool onRight();
-    //  ';' to format current email address
+    //  format text to email by semicolon
     //	'name@domain.com' to 'name<name@domain.com>'
     bool onSemicolon();
-    /*!
-     * \brief remove character or email address
-     * \return  event have been deal with
-     */
+    //  remove characters or email
     bool onBackspace();
     //  remove email address
     bool signalBackspace(QTextCursor *curTextCursor);
@@ -46,36 +45,46 @@ public:
     void onPaste();
     //  paste one email address
     void pasteOneMailbox(const QString &pasteContent);
+    //  highlight email if have email exist in cursor
+    bool selectBlockIfExist(QTextCursor textCursor);
+    //  check cursor is the last cursor of textedit
+    bool isLastCursor(QTextCursor check) const;
 
 public:
-    //
-    void updateBeginPosOfCurBlock(int position);
     //
     bool isValidEmail(const QString& emailAddr);
 
 public: //  message
     void emailAdreesIsUnvalid(const QString& emailAddress);
     void emailAdreesIsExist();
+    QString lastInputText(bool remove = false);
+    int lastBeginPos() const;
+    int lastCursorPosition() const;
 };
 
 QrEMailInputTextEditPrivate::QrEMailInputTextEditPrivate(QrEMailInputTextEdit *q)
     : q_ptr(q)
 {
-    QObject::connect(q, &QrEMailInputTextEdit::textChanged,
+    q->connect(q, &QrEMailInputTextEdit::textChanged,
                      [this](){
         Q_Q(QrEMailInputTextEdit);
-        emit q->startTyping(beginPosOfCurBlock);
+        emit q->startTyping(lastInputText());
     });
 }
 
 QrEMailInputTextEditPrivate::~QrEMailInputTextEditPrivate() {}
 
-void QrEMailInputTextEditPrivate::updateBeginPosOfCurBlock(int position)
+bool QrEMailInputTextEditPrivate::isLastCursor(QTextCursor check) const
 {
-    beginPosOfCurBlock = position;
+    return check.position() == lastCursorPosition();
+}
 
-    Q_Q(QrEMailInputTextEdit);
-    emit q->finishTyping();
+int QrEMailInputTextEditPrivate::lastCursorPosition() const
+{
+    Q_Q(const QrEMailInputTextEdit);
+    QTextCursor lastCursor(q->document());
+    lastCursor.movePosition(QTextCursor::End);
+    return lastCursor.position();
 }
 
 bool QrEMailInputTextEditPrivate::onLeft()
@@ -84,16 +93,22 @@ bool QrEMailInputTextEditPrivate::onLeft()
 
     QTextCursor curTextCursor = q->textCursor();
 
-    QrMailBlock preBlock;
-    if (! meetingeeContainer.previousBlock(curTextCursor.position(), &preBlock)) {
+    QrMailBlock curBlock;
+    if (! meetingeeContainer.previousBlock(curTextCursor.position(), &curBlock)) {
         return false;
     }
 
-    curTextCursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor,
-                               curTextCursor.position() - preBlock.beginPos);
-    q->setTextCursor(curTextCursor);
+    if(curTextCursor.position() == curBlock.nextPos
+            && ! curTextCursor.hasSelection()) {    //  in edit status, cursor is the last of textedit
+        curTextCursor.setPosition(curBlock.endPos);
+    }else if(0 == curBlock.beginPos) {
+        curTextCursor.setPosition(0);
+    } else {
+        curTextCursor.setPosition(curBlock.beginPos - 1);
+    }
 
-    updateBeginPosOfCurBlock(curTextCursor.position());
+    selectBlockIfExist(curTextCursor);
+
     return true;
 }
 
@@ -101,49 +116,93 @@ bool QrEMailInputTextEditPrivate::onRight()
 {
     Q_Q(QrEMailInputTextEdit);
 
-    QTextCursor curTextCursor = q->textCursor();
+    QTextCursor curTextCursor = q->textCursor(),
+            blockTextCursor = q->textCursor();
 
     QrMailBlock curBlock;
     if (! meetingeeContainer.currentBlock(curTextCursor.position(), &curBlock)) {
+        if(0 != meetingeeContainer.size()) {
+            auto lastBlock = meetingeeContainer.lastBlock();
+            if(curTextCursor.hasSelection() &&
+                    lastCursorPosition() > lastBlock.nextPos) {
+                auto fixCursor = q->textCursor();
+                fixCursor.clearSelection();
+                fixCursor.setPosition(lastBlock.nextPos);
+                q->setTextCursor(fixCursor);
+                return true;    //  eat event
+            }
+        }
+
+        if(curTextCursor.hasSelection()) {
+            QTextCursor lastCursor(q->document());
+            lastCursor.movePosition(QTextCursor::End);
+            q->setTextCursor(lastCursor);
+        }
         return false;
     }
 
-    curTextCursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor,
-                               curBlock.endPos - curTextCursor.position() + 1);
-    q->setTextCursor(curTextCursor);
-
-    updateBeginPosOfCurBlock(curTextCursor.position());
+    if(curTextCursor.hasSelection()) {
+        blockTextCursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor,
+                                     curBlock.endPos - curTextCursor.position() + 1);
+    }
+    selectBlockIfExist(blockTextCursor);
 
     return true;
+}
+
+int QrEMailInputTextEditPrivate::lastBeginPos() const
+{
+    int beginPos = 0;
+    if(0 != meetingeeContainer.size()) {
+        beginPos = meetingeeContainer.lastBlock().endPos + 1;
+    }
+    return beginPos;
+}
+
+QString QrEMailInputTextEditPrivate::lastInputText(bool remove /*= false*/ )
+{
+    Q_Q(QrEMailInputTextEdit);
+
+    QTextCursor curTextCursor = q->textCursor();
+    auto blockSize = curTextCursor.position()-lastBeginPos();
+    curTextCursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, blockSize);
+    curTextCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, blockSize);
+
+    auto inputText = curTextCursor.selectedText();
+
+    if (remove) {
+        curTextCursor.removeSelectedText();
+        q->setTextCursor(curTextCursor);
+    }
+
+    return inputText;
 }
 
 bool QrEMailInputTextEditPrivate::onSemicolon()
 {
     Q_Q(QrEMailInputTextEdit);
 
+    const QString selectedText = lastInputText(true);
+
     QrMailBlock newBlock;
-    newBlock.beginPos = beginPosOfCurBlock;
-
-    QTextCursor curTextCursor = q->textCursor();
-    auto blockSize = curTextCursor.position()-beginPosOfCurBlock;
-    curTextCursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, blockSize);
-    curTextCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, blockSize);
-
-    const QString selectedText = curTextCursor.selectedText();
-
+    newBlock.beginPos = lastBeginPos();
     newBlock.name = selectedText.simplified();
     if ( ! isValidEmail(newBlock.name) ) {
         emailAdreesIsUnvalid(newBlock.name);
+
+        auto fixCursor = q->textCursor();
+        fixCursor.insertText(selectedText); //  fix the unvalid text
+        q->setTextCursor(fixCursor);
+
         return false;
     }
     if (meetingeeContainer.containName(newBlock.name)) {
-        emailAdreesIsExist();
+        emailAdreesIsExist();   //  TODO
         return false;
     }
 
     newBlock.display = QrMailBlock::formatDisplayByName(newBlock.name);
 
-    curTextCursor.removeSelectedText();
     QString insertText = newBlock.display;
 
     //  \n \r
@@ -156,15 +215,14 @@ bool QrEMailInputTextEditPrivate::onSemicolon()
         insertText = insertText + rightNewLineValue;
     }
 
-    curTextCursor.insertText(insertText);
-    q->setTextCursor(curTextCursor);
+    auto curCursor = q->textCursor();
+    curCursor.insertText(insertText);
+    q->setTextCursor(curCursor);
 
     newBlock.endPos = q->textCursor().position() - 1;
     newBlock.nextPos = newBlock.endPos + 1;
 
     meetingeeContainer.push(newBlock);
-
-    updateBeginPosOfCurBlock(newBlock.nextPos);  //  begin position of next block
 
     return true;
 }
@@ -206,6 +264,18 @@ bool QrEMailInputTextEditPrivate::onBackspace()
 
     QTextCursor curTextCursor = q->textCursor();
 
+    bool editLast = true;   //  edit in last area
+    if(0 != meetingeeContainer.size()) {
+        editLast = curTextCursor.position() > meetingeeContainer.lastBlock().endPos;
+    }
+    if( ! editLast) {    //  not edit in last area
+        if(curTextCursor.hasSelection()) {  //   selected block
+            if(! meetingeeContainer.containDisplayName(curTextCursor.selectedText())) {  //  not in container
+                return false;
+            }
+        }
+    }
+
     bool success = false;
     if (! curTextCursor.selectedText().isEmpty()) {
         success = selectionBackspace(&curTextCursor);
@@ -215,16 +285,18 @@ bool QrEMailInputTextEditPrivate::onBackspace()
 
     curTextCursor.removeSelectedText();
     q->setTextCursor(curTextCursor);
-    if (success) {
-        updateBeginPosOfCurBlock(curTextCursor.position());
-    }
 
     return success;
 }
 
 void QrEMailInputTextEditPrivate::onPaste()
 {
-    const QString pasteText = QApplication::clipboard()->text().simplified();
+    QString pasteText = QApplication::clipboard()->text().simplified();
+    pasteText.replace(' ', ';');
+    pasteText.replace(',', ';');
+    pasteText.replace('\n', ';');
+    pasteText.replace('\r', ';');
+    pasteText.replace(';;', ';');
     const QStringList tempPasteBlockContents = pasteText.split(';');
 
     //  simplifize
@@ -274,25 +346,38 @@ void QrEMailInputTextEditPrivate::pasteOneMailbox(const QString& pasteContent)
 
     curTextCursor.insertText(newBlock.display);
     q->setTextCursor(curTextCursor);
+}
 
-    updateBeginPosOfCurBlock(curTextCursor.position());
+bool QrEMailInputTextEditPrivate::selectBlockIfExist(QTextCursor textCursor)
+{
+    QrMailBlock selectedBlock;
+    if ( ! meetingeeContainer.currentBlock(textCursor.position(), &selectedBlock) ) {
+        return false;
+    }
+
+    qDebug() << "select block:" << selectedBlock.name;
+
+    textCursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor,
+                            textCursor.position()-selectedBlock.beginPos);
+    textCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor,
+                            selectedBlock.display.size());
+
+    Q_Q(QrEMailInputTextEdit);
+    q->setTextCursor(textCursor);
+
+    return true;
 }
 
 void QrEMailInputTextEditPrivate::emailAdreesIsUnvalid(const QString &emailAddress)
 {
     Q_Q(QrEMailInputTextEdit);
-    QMessageBox::information(q,
-                             QObject::tr("warning"),
-                             QObject::tr(QString("[%1] email address is unvalid.")
-                                         .arg(emailAddress).toStdString().c_str()));
+    QrToast::instance()->showInWidget(q, QString(QObject::tr("%1email address is unvalid.")).arg(emailAddress));
 }
 
 void QrEMailInputTextEditPrivate::emailAdreesIsExist()
 {
     Q_Q(QrEMailInputTextEdit);
-    QMessageBox::information(q,
-                             QObject::tr("warning"),
-                             QObject::tr(QString("email address is exist.").toStdString().c_str()));
+    QrToast::instance()->showInWidget(q, QObject::tr("email is reduplicated."));
 }
 
 bool QrEMailInputTextEditPrivate::isValidEmail(const QString &emailAddr)
@@ -315,9 +400,10 @@ QrEMailInputTextEdit::QrEMailInputTextEdit(QWidget *parent)
     : QTextEdit(parent),
       d_ptr(new QrEMailInputTextEditPrivate(this))
 {
-    d_ptr->updateBeginPosOfCurBlock(textCursor().position());
+    setAttribute(Qt::WA_AlwaysShowToolTips);
 
     setUndoRedoEnabled(false);  //  disable undo
+    setContextMenuPolicy(Qt::NoContextMenu);
 
     auto colorToString = [&](const QColor& color){
         return QString("rgb(%1, %2, %3)").arg(color.red()).arg(color.green()).arg(color.blue());
@@ -328,24 +414,36 @@ QrEMailInputTextEdit::QrEMailInputTextEdit(QWidget *parent)
                   .arg(colorToString(highlightColor), colorToString(highlightedTextColor)));
 }
 
+void QrEMailInputTextEdit::clearText()
+{
+    clear();
+}
+
+void QrEMailInputTextEdit::clearContainer()
+{
+    Q_D(QrEMailInputTextEdit);
+    d->meetingeeContainer.clear();
+}
+
 void QrEMailInputTextEdit::enterClickFromDDList(const QString &ddlistValue)
 {
     Q_D(QrEMailInputTextEdit);
 
-    QTextCursor curTextCursor = textCursor();
-
-    auto removeSize = curTextCursor.position()-d->beginPosOfCurBlock;
-    curTextCursor.movePosition(QTextCursor::Left,
-                               QTextCursor::MoveAnchor,
-                               removeSize);
-    curTextCursor.movePosition(QTextCursor::Right,
-                               QTextCursor::KeepAnchor,
-                               removeSize);
-    curTextCursor.removeSelectedText();
-
-    setTextCursor(curTextCursor);
+    d->lastInputText(true);
 
     d->pasteOneMailbox(ddlistValue);
+}
+
+QStringList QrEMailInputTextEdit::getSimpleEmails() const
+{
+    Q_D(const QrEMailInputTextEdit);
+    return d->meetingeeContainer.getNames();
+}
+
+QStringList QrEMailInputTextEdit::getFormatedEmails() const
+{
+    Q_D(const QrEMailInputTextEdit);
+    return d->meetingeeContainer.getDisplayes();
 }
 
 bool QrEMailInputTextEdit::keyPress(QKeyEvent *event)
@@ -367,6 +465,8 @@ bool QrEMailInputTextEdit::keyPress(QKeyEvent *event)
         }
         break;
     case Qt::Key_Semicolon:
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
         insertKeyPress = true;
         d->onSemicolon();
         return true;
@@ -391,6 +491,15 @@ bool QrEMailInputTextEdit::keyPress(QKeyEvent *event)
         return true;
     }
 
+    bool editLast = true;   //  edit in last area
+    if(0 != d->meetingeeContainer.size()) {
+        editLast = textCursor().position() > d->meetingeeContainer.lastBlock().endPos;
+    }
+    if(textCursor().hasSelection()  //  couldn't edit in the email area
+            || ! editLast ) {  //  couldn't edit except the last area
+        return true;
+    }
+
     auto curPosition = textCursor().position();
     if ( d->meetingeeContainer.size() > 0    //  container have elements
          && d->meetingeeContainer.lastBlock().endPos >= curPosition ) {	//	not change in the end block
@@ -407,52 +516,11 @@ bool QrEMailInputTextEdit::keyPress(QKeyEvent *event)
 void QrEMailInputTextEdit::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QrEMailInputTextEdit);
-
     QTextCursor cursor = cursorForPosition(event->pos());
 
-    QTextCursor lastCursor(document());
-    lastCursor.movePosition(QTextCursor::End);
-    d->mouseClickOnEnd = (cursor.position() == lastCursor.position());
-
-    QrMailBlock selectedBlock;
-    if ( ! d->meetingeeContainer.currentBlock(cursor.position(), &selectedBlock) ) {
-        return QTextEdit::mousePressEvent(event);
-    }
-
-    cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, cursor.position()-selectedBlock.beginPos);
-    cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, selectedBlock.display.size());
-
-    setTextCursor(cursor);
-}
-
-void QrEMailInputTextEdit::mouseMoveEvent(QMouseEvent *event)
-{
-    Q_D(QrEMailInputTextEdit);
-
-    if (! d->mouseClickOnEnd) {
-        return;
-    }
-
-    QTextCursor cursor = cursorForPosition(event->pos());
-
-    QTextCursor lastCursor(document());
-    lastCursor.movePosition(QTextCursor::End);
-
-    if (cursor.position() >= lastCursor.position()) {
-        cursor.clearSelection();
+    if (d->isLastCursor(cursor)) {  //  could edit if in the last
         setTextCursor(cursor);
-        return;
-    }
-
-    QrMailBlock selectedBlock;
-    if ( ! d->meetingeeContainer.currentBlock(cursor.position(), &selectedBlock) ) {
-        return QTextEdit::mouseMoveEvent(event);
-    }
-
-    if ( ( cursor.position() - (selectedBlock.beginPos + selectedBlock.endPos) / 2) < 2 ) {
-        cursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor, cursor.position()-selectedBlock.beginPos);
-        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor, selectedBlock.display.size()+1);
-
-        setTextCursor(cursor);
+    } else {    //  only selection
+        d->selectBlockIfExist(cursor);
     }
 }

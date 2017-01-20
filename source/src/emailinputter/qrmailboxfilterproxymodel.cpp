@@ -1,4 +1,6 @@
-#include "emailinputter/qrmailboxfilterproxymodel.h"
+﻿#include "emailinputter/qrmailboxfilterproxymodel.h"
+
+#include "qrutf8.h"
 
 USING_NS_QRWIDGETS;
 

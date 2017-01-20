@@ -1,8 +1,10 @@
-#include "emailinputter/qrmailboxblock.h"
+﻿#include "emailinputter/qrmailboxblock.h"
 
 #include <algorithm>
 
 #include <QtCore/qdebug.h>
+
+#include "qrutf8.h"
 
 USING_NS_QRWIDGETS;
 
@@ -27,13 +29,31 @@ bool QrMailBlock::operator==(const QrMailBlock &rhs) const {
 }
 
 ////////////////////////////////////////////
-QStringList QrMailboxBlockContainer::getNames()
+QStringList QrMailboxBlockContainer::getNames() const
 {
-    QStringList meetingees;
+    QStringList names;
     Q_FOREACH(const QrMailBlock& elem, meetingeeBlocks) {
-        meetingees.push_back(elem.name);
+        names.push_back(elem.name);
     }
-    return meetingees;
+    return names;
+}
+
+QStringList QrMailboxBlockContainer::getDisplayes(bool chopSemicon) const
+{
+    QStringList displayes;
+    Q_FOREACH(const QrMailBlock& elem, meetingeeBlocks) {
+        auto display = elem.display;
+        if (chopSemicon) {
+            display.chop(1);
+        }
+        displayes.push_back(display);
+    }
+    return displayes;
+}
+
+void QrMailboxBlockContainer::clear()
+{
+    meetingeeBlocks.clear();
 }
 
 int QrMailboxBlockContainer::size() const
@@ -48,6 +68,15 @@ const QrMailBlock &QrMailboxBlockContainer::lastBlock() const
 
 bool QrMailboxBlockContainer::contains(const QrMailBlock &value) {
     return meetingeeBlocks.contains(value);
+}
+
+bool QrMailboxBlockContainer::containDisplayName(const QString &displayName)
+{
+    return meetingeeBlocks.end() !=
+            std::find_if(meetingeeBlocks.begin(), meetingeeBlocks.end(),
+                         [displayName](const QrMailBlock& elem){
+        return elem.display == displayName;
+    });
 }
 
 bool QrMailboxBlockContainer::containName(const QString &name)
@@ -140,14 +169,13 @@ void QrMailboxBlockContainer::updatePositionBeforeRemove(const QrMailBlock& remo
     int beginPosOfPreBlock = removed.beginPos;
     for(++updateIdx; updateIdx < meetingeeBlocks.size(); ++updateIdx) {
         QrMailBlock& curBlock = meetingeeBlocks[updateIdx];
-        int tempValue = curBlock.beginPos;
 
         int width = curBlock.endPos - curBlock.beginPos;
         curBlock.beginPos = beginPosOfPreBlock;
         curBlock.endPos = curBlock.beginPos + width;
         curBlock.nextPos = curBlock.endPos + 1;
 
-        beginPosOfPreBlock = tempValue;
+        beginPosOfPreBlock = curBlock.nextPos;
     }
 }
 

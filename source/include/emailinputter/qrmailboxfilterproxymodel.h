@@ -1,5 +1,5 @@
-#ifndef MAILBOXFILTERPROXYMODEL_H
-#define MAILBOXFILTERPROXYMODEL_H
+﻿#ifndef QRMAILBOXFILTERPROXYMODEL_H
+#define QRMAILBOXFILTERPROXYMODEL_H
 
 #include <QtCore/qsortfilterproxymodel.h>
 
@@ -7,7 +7,7 @@
 
 NS_QRWIDGETS_BEGIN
 
-class QrMailboxFilterProxyModel : public QSortFilterProxyModel
+class QRWIDGETSSHARED_EXPORT QrMailboxFilterProxyModel : public QSortFilterProxyModel
 {
 public:
     QrMailboxFilterProxyModel(QObject *parent = 0);
@@ -20,4 +20,4 @@ protected:
 
 NS_QRWIDGETS_END
 
-#endif // MAILBOXFILTERPROXYMODEL_H
+#endif // QRMAILBOXFILTERPROXYMODEL_H

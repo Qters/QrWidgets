@@ -1,5 +1,5 @@
-#ifndef MEETINGEEBLOCK_H
-#define MEETINGEEBLOCK_H
+﻿#ifndef QRMEETINGEEBLOCK_H
+#define QRMEETINGEEBLOCK_H
 
 #include <functional>
 
@@ -20,7 +20,7 @@ struct QrMailBlock {
     bool operator==(const QrMailBlock &rhs) const;
 
     QString name;       //  actual input, name@domain.com
-    QString display;    //  display to textedit, name<name@domain.com>
+    QString display;    //  display to textedit, name<name@domain.com>;
     int beginPos;   //  begin curpor position in textedit
     int endPos;     //  end curpor position in textedit
     int nextPos;    //  begin curpor position in textedit of next mail
@@ -32,15 +32,19 @@ private:
 
 public:
     //  format : name@domain.com; name@domain.com;
-    QStringList getNames();
+    QStringList getNames() const;
+    //  format : name<name@domain.com>; name<name@domain.com>;
+    QStringList getDisplayes(bool chopSemicon = true) const;
 
     //
+    void clear();
     int size() const;
     const QrMailBlock& lastBlock() const;
 
     //
     bool contains(const QrMailBlock& value);
     bool containName(const QString& name);
+    bool containDisplayName(const QString &displayName);
 
     void push(const QrMailBlock& value);
     //  remove the block by block's display
@@ -85,4 +89,4 @@ private:
 
 NS_QRWIDGETS_END
 
-#endif // MEETINGEEBLOCK_H
+#endif // QRMEETINGEEBLOCK_H

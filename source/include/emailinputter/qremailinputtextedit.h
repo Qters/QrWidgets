@@ -1,5 +1,5 @@
-#ifndef MEETINGEETEXTEDIT_H
-#define MEETINGEETEXTEDIT_H
+﻿#ifndef QRMEETINGEETEXTEDIT_H
+#define QRMEETINGEETEXTEDIT_H
 
 #include <QtWidgets/qtextedit.h>
 
@@ -35,19 +35,23 @@ public:
     QrEMailInputTextEdit(QWidget *parent = 0);
 
 Q_SIGNALS:
-    void startTyping(int beginPositionOfBlock);
+    void startTyping(QString inputText);
     void finishTyping();
 
 public:
+    void clearText();
+    void clearContainer();
     bool keyPress(QKeyEvent *event);
     void enterClickFromDDList(const QString& ddlistValue);
+    //  name@domain.com
+    QStringList getSimpleEmails() const;
+    //  name<name@domain.com>;
+    QStringList getFormatedEmails() const;
 
-    // QWidget interface
 protected:
     void mousePressEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);
 };
 
 NS_QRWIDGETS_END
 
-#endif // MEETINGEETEXTEDIT_H
+#endif // QRMEETINGEETEXTEDIT_H

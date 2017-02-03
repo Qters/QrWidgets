@@ -86,6 +86,12 @@ QrFilterList::QrFilterList(QWidget* parent)
     d->initUI();
 }
 
+QListWidget *QrFilterList::listWidget()
+{
+    Q_D(QrFilterList);
+    return d->list;
+}
+
 void QrFilterList::timerEvent(QTimerEvent *event)
 {
     Q_D(QrFilterList);

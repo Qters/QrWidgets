@@ -8,10 +8,14 @@
 
 #include "qrwidgets_global.h"
 
+QT_BEGIN_NAMESPACE
+class QListWidget;
+QT_END_NAMESPACE
+
 NS_QRWIDGETS_BEGIN
 
 class QrFilterListPrivate;
-class QRWIDGETSSHARED_EXPORT QrFilterList : QWidget
+class QRWIDGETSSHARED_EXPORT QrFilterList : public QWidget
 {
     Q_OBJECT
 
@@ -19,6 +23,9 @@ class QRWIDGETSSHARED_EXPORT QrFilterList : QWidget
 
 public:
     QrFilterList(QWidget* parent = Q_NULLPTR);
+
+public:
+    QListWidget* listWidget();
 };
 
 NS_QRWIDGETS_END

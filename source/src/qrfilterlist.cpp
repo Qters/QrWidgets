@@ -60,6 +60,13 @@ void QrFilterListPrivate::initUI()
     layout->addWidget(listEditer);
     layout->addWidget(list);
 
+    q->connect(list, &QListWidget::clicked, [this](const QModelIndex &index){
+        Q_UNUSED(index);
+
+        Q_Q(QrFilterList);
+        emit q->listClick(list->currentItem()->text());
+    });
+
     q->connect(listEditer, &QLineEdit::textChanged, [this](const QString &text){
         Q_UNUSED(text);
 

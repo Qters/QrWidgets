@@ -25,6 +25,7 @@ public:
     QrFilterList(QWidget* parent = Q_NULLPTR);
 
 Q_SIGNALS:
+    void listClick(QString text);
     void filterStart();
     void filterFinish();
 

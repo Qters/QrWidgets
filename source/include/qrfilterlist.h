@@ -24,8 +24,16 @@ class QRWIDGETSSHARED_EXPORT QrFilterList : public QWidget
 public:
     QrFilterList(QWidget* parent = Q_NULLPTR);
 
+Q_SIGNALS:
+    void filterStart();
+    void filterFinish();
+
 public:
     QListWidget* listWidget();
+
+    // QObject interface
+protected:
+    virtual void timerEvent(QTimerEvent *event) override;
 };
 
 NS_QRWIDGETS_END

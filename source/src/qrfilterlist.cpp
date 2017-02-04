@@ -3,6 +3,7 @@
 #include <QtWidgets/qlineedit.h>
 #include <QtWidgets/qlistwidget.h>
 #include <QtWidgets/QVBoxLayout>
+#include <QtCore/QTimerEvent>
 
 #include "qrchinesetopinyin.h"
 
@@ -39,9 +40,9 @@ void QrFilterListPrivate::filterList()
 
     bool isShow = false;
     for(int idx=0; idx<list->count(); ++idx) {
-        std::string pinyin = QrChineseToPinYin::convert(
-                    list->item(idx)->text().toStdWString(), true);
-        isShow = filterReg.exactMatch(pinyin.c_str());
+        QString pinyin = QrChineseToPinYin::convert(
+                    list->item(idx)->text().toStdWString(), true).c_str();
+        isShow = filterReg.exactMatch(pinyin);
         list->setItemHidden(list->item(idx), !isShow);
     }
 
@@ -59,7 +60,7 @@ void QrFilterListPrivate::initUI()
     layout->addWidget(listEditer);
     layout->addWidget(list);
 
-    connect(listEditer, &QLineEdit::textChanged, [this](const QString &text){
+    q->connect(listEditer, &QLineEdit::textChanged, [this](const QString &text){
         Q_UNUSED(text);
 
         Q_Q(QrFilterList);

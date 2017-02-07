@@ -84,6 +84,9 @@ void QrToastPrivate::updateExistToastPoses(QWidget* widget)
     int totalHeight = 0;
     QVector<int> existHeights;
     QVector<QrToastInfo> existToasts = showingToasts[widget];
+    if(existToasts.isEmpty()) {
+        return;
+    }
     Q_FOREACH(QrToastInfo toastInfo, existToasts) {
         QLabel* existToast = toastInfo.toast;
         if(nullptr == existToast) {

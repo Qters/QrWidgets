@@ -284,6 +284,18 @@ void QrToast::showInWidget(QWidget *widget, const QString &msg, int msecs)
     d->pushToast(toastInfo);
 }
 
+bool QrToast::eventFilter(QObject *watched, QEvent *event)
+{
+    if(QEvent::Destroy == event->type()) {
+        Q_D(QrToast);
+        QWidget* widget = qobject_cast<QWidget*>(watched);
+        if(nullptr != widget && d->waitingToasts.contains(widget)) {
+            d->waitingToasts.remove(widget);
+        }
+    }
+    return QObject::eventFilter(watched, event);
+}
+
 void QrToast::timerEvent(QTimerEvent *e)
 {
     Q_D(QrToast);

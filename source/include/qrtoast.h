@@ -45,6 +45,10 @@ public:
     void showInWidget(QWidget* widget, const QString& msg, int msecs = 1500);
 
     // QObject interface
+public:
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+
+    // QObject interface
 protected:
     void timerEvent(QTimerEvent *);
 };

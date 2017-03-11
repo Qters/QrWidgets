@@ -58,6 +58,13 @@
       </property>
      </widget>
     </item>
+    <item row="2" column="1">
+     <widget class="QPushButton" name="titlebar">
+      <property name="text">
+       <string>titlebar</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>

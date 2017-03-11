@@ -1,4 +1,4 @@
-#include "qrwidgetdemo.h"
+﻿#include "qrwidgetdemo.h"
 #include "ui_qrwidgetdemo.h"
 
 #include "toast/qrtoastdemo.h"
@@ -6,6 +6,7 @@
 #include "emailinputter/emailinputterwidget.h"
 #include "layout/queuelayout/queuecontrolwidget.h"
 #include "editablelabel/editablelabelwidget.h"
+#include "titlebar/qrtitlebardemo.h"
 
 QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
     QWidget(parent),
@@ -53,6 +54,12 @@ QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
         editableLabel.show();
 
         widgetDoModelFunc(&editableLabel);
+    });
+    connect(ui->titlebar, &QPushButton::clicked, [this, widgetDoModelFunc](){
+        QrTitlebarDemo titlebarDemo;
+        titlebarDemo.show();
+
+        widgetDoModelFunc(&titlebarDemo);
     });
 }
 

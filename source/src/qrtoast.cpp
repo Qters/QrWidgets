@@ -1,4 +1,4 @@
-#include "qrtoast.h"
+﻿#include "qrtoast.h"
 
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qapplication.h>
@@ -255,12 +255,13 @@ QrToast::QrToast()
 
 QrToast::~QrToast()
 {
-    Q_D(QrToast);
-    for(QMap<int, QrToastInfo>::Iterator iter = d->timeIdMapToast.begin();
-        iter != d->timeIdMapToast.end();
-        ++iter) {
-        d->removeToastBy(iter.key());
-    }
+    //  this is a static instance , no need to relase any more
+    //    Q_D(QrToast);
+    //    for(QMap<int, QrToastInfo>::Iterator iter = d->timeIdMapToast.begin();
+    //        iter != d->timeIdMapToast.end();
+    //        ++iter) {
+    //        d->removeToastBy(iter.key());
+    //    }
 }
 
 void QrToast::showInScreen(const QString &msg, int msecs /*= 1500*/)

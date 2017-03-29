@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>682</width>
-    <height>316</height>
+    <width>215</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1,0,0">
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -37,7 +37,35 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="widget_2" native="true"/>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="content" native="true">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QrMovable" name="bottom" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>30</height>
+      </size>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -46,6 +74,12 @@
    <class>QrTitleBar</class>
    <extends>QWidget</extends>
    <header>titlebar/qrtitlebar.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QrMovable</class>
+   <extends>QWidget</extends>
+   <header>titlebar/qrmovable.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

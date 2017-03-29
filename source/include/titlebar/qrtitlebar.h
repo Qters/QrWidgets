@@ -8,8 +8,10 @@
 
 #include "qrwidgets_global.h"
 
+#include "qrmovable.h"
+
 class QrTitleBarPrivate;
-class QRWIDGETSSHARED_EXPORT QrTitleBar : public QWidget
+class QRWIDGETSSHARED_EXPORT QrTitleBar : public QrMovable
 {
     Q_OBJECT
 
@@ -22,7 +24,6 @@ public:
         MinButton       = 0x02,
         MaxButton       = 0x04,
         CloseButton     = 0x08,
-        BoxEffect       = 0x10,
     };
 
 public:
@@ -33,19 +34,10 @@ public:
     void setFlags(BarFlags flags);
     void setTitle(const QString& title);
     void setLogo(const QPixmap& logo);
-    void setBoxColor(const QColor& boxColor);
-    void donotMove(QPushButton *button);
-
-    // QObject interface
-public:
-    virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
     // QWidget interface
 protected:
-    virtual void mousePressEvent(QMouseEvent *event) override;
-    virtual void mouseReleaseEvent(QMouseEvent *event) override;
     virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
-    virtual void mouseMoveEvent(QMouseEvent *event) override;
 };
 
 #endif // QRTITLEBAR_H

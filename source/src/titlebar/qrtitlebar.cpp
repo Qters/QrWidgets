@@ -5,8 +5,6 @@
 #include <QtWidgets/qlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qstyle.h>
-#include <QtGui/qevent.h>
-#include <QtGui/qpainter.h>
 
 #include <QtCore/qsettings.h>
 
@@ -24,11 +22,6 @@ public:
 
     QLabel *logo = nullptr;
     QLabel *title = nullptr;
-
-    QrShaderDelegate *shaderDelegate = nullptr;
-
-    bool clickOnButton = false;
-    bool isMovable = true;
 
     const QString geometrySettingKey = "qr_titlebar_layout_geometry";
 
@@ -51,16 +44,6 @@ QrTitleBarPrivate::QrTitleBarPrivate(QrTitleBar *q)
 void QrTitleBarPrivate::init()
 {
     Q_Q(QrTitleBar);
-
-    shaderDelegate = new QrShaderDelegate(q);
-    q->connect(shaderDelegate, &QrShaderDelegate::moveEndSend, [this](QPoint point){
-        if (! isMovable) {
-            return;
-        }
-
-        Q_Q(QrTitleBar);
-        q->parentWidget()->move(point);
-    });
 
     QHBoxLayout *layout = new QHBoxLayout;
 
@@ -154,13 +137,12 @@ void QrTitleBarPrivate::initForWindows(QHBoxLayout *layout)
 ///////////////////////////////////////////////
 
 QrTitleBar::QrTitleBar(QWidget *parent)
-    : QWidget(parent),
+    : QrMovable(parent),
       d_ptr(new QrTitleBarPrivate(this))
 {
     Q_ASSERT(nullptr != parent);
 
     parent->setWindowFlags(Qt::FramelessWindowHint);
-    parent->installEventFilter(this);
 
     setWindowFlags(Qt::FramelessWindowHint |
                    Qt::WindowSystemMenuHint |
@@ -184,7 +166,6 @@ void QrTitleBar::setFlags(QrTitleBar::BarFlags flags)
     d->maxBtn->setVisible(flags & BarFlags::MaxButton);
     d->normalBtn->setVisible(flags & BarFlags::MaxButton);
     d->closeBtn->setVisible(flags & BarFlags::CloseButton);
-    d->shaderDelegate->setVisible(flags & BarFlags::BoxEffect);
 }
 
 void QrTitleBar::setTitle(const QString &title)
@@ -197,80 +178,6 @@ void QrTitleBar::setLogo(const QPixmap &logo)
 {
     Q_D(QrTitleBar);
     d->logo->setPixmap(logo);
-}
-
-void QrTitleBar::setBoxColor(const QColor &boxColor)
-{
-    Q_D(QrTitleBar);
-    d->shaderDelegate->setBoxColor(boxColor);
-}
-
-void QrTitleBar::donotMove(QPushButton *button)
-{
-    connect(button, &QPushButton::pressed, [this](){
-        Q_D(QrTitleBar);
-        d->clickOnButton = true;
-    });
-}
-
-bool QrTitleBar::eventFilter(QObject *watched, QEvent *event)
-{
-    if(watched == parent() && event->type() == QEvent::Paint) {
-        Q_D(QrTitleBar);
-        QRect region = parentWidget()->rect();
-
-        QPainter painter(parentWidget());
-        QPen pen;
-        pen.setColor(d->shaderDelegate->boxColor());
-        pen.setWidth(2);
-        painter.setPen(pen);
-        painter.drawRect(region.x(), region.y(), region.width(), region.height());
-    }
-
-    return QWidget::eventFilter(watched, event);
-}
-
-void QrTitleBar::mousePressEvent(QMouseEvent *e)
-{
-    Q_D(QrTitleBar);
-
-    if(d->clickOnButton) {
-        d->clickOnButton = false;
-    }
-
-    if (d->isMovable) {
-        QRect rect = parentWidget()->geometry();
-        d->shaderDelegate->mousePressed(e, rect);
-    }
-
-    QWidget::mousePressEvent(e);
-}
-
-void QrTitleBar::mouseMoveEvent(QMouseEvent *e)
-{
-    Q_D(QrTitleBar);
-    if(d->clickOnButton) {
-        return;
-    }
-    if (d->isMovable) {
-        d->shaderDelegate->mouseMoving(e);
-    }
-
-    QWidget::mouseMoveEvent(e);
-}
-
-void QrTitleBar::mouseReleaseEvent(QMouseEvent *e)
-{
-    Q_D(QrTitleBar);
-    if(d->clickOnButton) {
-        return;
-    }
-
-    if (d->isMovable) {
-        d->shaderDelegate->mouseReleased(e);
-    }
-
-    QWidget::mouseReleaseEvent(e);
 }
 
 void QrTitleBar::mouseDoubleClickEvent(QMouseEvent *e)

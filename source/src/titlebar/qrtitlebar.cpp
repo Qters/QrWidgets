@@ -10,6 +10,8 @@
 
 #include "titlebar/qrshaderdelegate.h"
 
+NS_QRWIDGETS_BEGIN
+
 class QrTitleBarPrivate{
 public:
     QR_DECLARE_PUBLIC(QrTitleBar)
@@ -134,7 +136,11 @@ void QrTitleBarPrivate::initForWindows(QHBoxLayout *layout)
     layout->addWidget(closeBtn);
 }
 
+NS_QRWIDGETS_END
+
 ///////////////////////////////////////////////
+
+USING_NS_QRWIDGETS;
 
 QrTitleBar::QrTitleBar(QWidget *parent)
     : QrMovable(parent),

@@ -7,6 +7,8 @@
 
 #include "qrwidgets_global.h"
 
+NS_QRWIDGETS_BEGIN
+
 class QrMovablePrivate;
 
 class QRWIDGETSSHARED_EXPORT QrMovable : public QWidget
@@ -36,5 +38,7 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent *event) override;
 };
+
+NS_QRWIDGETS_END
 
 #endif // QRMOVABLE_H

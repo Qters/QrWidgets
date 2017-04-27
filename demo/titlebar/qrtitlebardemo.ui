@@ -27,7 +27,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QrTitleBar" name="titlebar" native="true">
+    <widget class="::Qters::QrWidgets::QrTitleBar" name="titlebar" native="true">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -58,7 +58,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QrMovable" name="bottom" native="true">
+    <widget class="::Qters::QrWidgets::QrMovable" name="bottom" native="true">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -71,13 +71,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QrTitleBar</class>
+   <class>::Qters::QrWidgets::QrTitleBar</class>
    <extends>QWidget</extends>
    <header>titlebar/qrtitlebar.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>QrMovable</class>
+   <class>::Qters::QrWidgets::QrMovable</class>
    <extends>QWidget</extends>
    <header>titlebar/qrmovable.h</header>
    <container>1</container>

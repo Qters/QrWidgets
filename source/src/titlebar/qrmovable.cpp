@@ -5,6 +5,8 @@
 
 #include "titlebar/qrshaderdelegate.h"
 
+NS_QRWIDGETS_BEGIN
+
 class QrMovablePrivate{
 public:
     QR_DECLARE_PUBLIC(QrMovable)
@@ -42,8 +44,11 @@ void QrMovablePrivate::init()
 }
 
 
+NS_QRWIDGETS_END
 
 ///////////////////////////////////////////////
+
+USING_NS_QRWIDGETS;
 
 QrMovable::QrMovable(QWidget *parent)
     : QWidget(parent),

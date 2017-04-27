@@ -10,6 +10,8 @@
 
 #include "qrmovable.h"
 
+NS_QRWIDGETS_BEGIN
+
 class QrTitleBarPrivate;
 class QRWIDGETSSHARED_EXPORT QrTitleBar : public QrMovable
 {
@@ -39,5 +41,7 @@ public:
 protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 };
+
+NS_QRWIDGETS_END
 
 #endif // QRTITLEBAR_H

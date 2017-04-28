@@ -25,7 +25,7 @@ public:
     QLabel *logo = nullptr;
     QLabel *title = nullptr;
 
-    const QString geometrySettingKey = "qr_titlebar_layout_geometry";
+    QString geometrySettingKey = "qr_titlebar_layout_geometry";
 
     QSettings setting;
 
@@ -41,6 +41,9 @@ public:
 QrTitleBarPrivate::QrTitleBarPrivate(QrTitleBar *q)
     : q_ptr(q)
 {
+    if(nullptr != q->parentWidget()) {
+        geometrySettingKey += QString("_") + q->parentWidget()->objectName();
+    }
 }
 
 void QrTitleBarPrivate::init()

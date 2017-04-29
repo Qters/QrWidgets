@@ -37,7 +37,7 @@ void QrEditableLabelPrivate::initLayout() {
 
     label = new QrLabel(q);
     label->setCursor(editable ? Qt::PointingHandCursor : Qt::ArrowCursor);
-    QObject::connect(label, &QrLabel::clicked, [this](){
+    q->connect(label, &QrLabel::clicked, [this](){
         switchState(false);
     });
 

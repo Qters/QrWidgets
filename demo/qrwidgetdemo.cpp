@@ -18,7 +18,7 @@ QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
 
     auto widgetDoModelFunc = [this](QWidget *widget){
         QEventLoop eventloop;
-        QObject::connect(widget, &QWidget::destroyed,
+        connect(widget, &QWidget::destroyed,
                          &eventloop, &QEventLoop::quit);
         eventloop.exec();
     };

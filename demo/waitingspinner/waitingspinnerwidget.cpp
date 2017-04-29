@@ -1,4 +1,4 @@
-#include "waitingspinnerwidget.h"
+﻿#include "waitingspinnerwidget.h"
 #include "ui_waitingspinnerwidget.h"
 
 #include <QtCore/qtimer.h>
@@ -23,12 +23,12 @@ WaitingSpinnerWidget::WaitingSpinnerWidget(QWidget *parent) :
 
         QTimer loadingTime;
         loadingTime.start(4000);
-        QObject::connect(&loadingTime, &QTimer::timeout, [this](){
+        connect(&loadingTime, &QTimer::timeout, [this](){
             emit this->timeout();
         });
 
         QEventLoop eventloop;
-        QObject::connect(this, &WaitingSpinnerWidget::timeout,
+        connect(this, &WaitingSpinnerWidget::timeout,
                          &eventloop, &QEventLoop::quit);
         eventloop.exec();
 

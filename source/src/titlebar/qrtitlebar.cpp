@@ -5,7 +5,7 @@
 #include <QtWidgets/qlayout.h>
 #include <QtWidgets/qlabel.h>
 #include <QtWidgets/qstyle.h>
-
+#include <QtCore/qdebug.h>
 #include <QtCore/qsettings.h>
 
 #include "titlebar/qrshaderdelegate.h"
@@ -39,7 +39,8 @@ public:
 };
 
 QrTitleBarPrivate::QrTitleBarPrivate(QrTitleBar *q)
-    : q_ptr(q)
+    : q_ptr(q),
+      setting("Qters", "QrWidgets")
 {
     if(nullptr != q->parentWidget()) {
         geometrySettingKey += QString("_") + q->parentWidget()->objectName();
@@ -53,21 +54,21 @@ void QrTitleBarPrivate::init()
     QHBoxLayout *layout = new QHBoxLayout;
 
     minBtn = new QPushButton(q);
-    minBtn->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarMinButton));
-    minBtn->setStyleSheet(minBtn->styleSheet() + ";border:none;");
+    minBtn->setObjectName("minBtn");
     q->connect(minBtn, &QPushButton::clicked, [this](){
         Q_Q(QrTitleBar);
         q->parentWidget()->showMinimized();
     });
 
     maxBtn = new QPushButton(q);
-    maxBtn->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarMaxButton));
-    maxBtn->setStyleSheet(maxBtn->styleSheet() + ";border:none;");
+    maxBtn->setObjectName("maxBtn");
     q->connect(maxBtn, &QPushButton::clicked, [this](){
         maxBtn->hide();
         normalBtn->show();
 
         Q_Q(QrTitleBar);
+        qDebug() << "titlebar max click of " << geometrySettingKey
+                 << ", save normal rect:" << q->parentWidget()->geometry();
         setting.setValue(geometrySettingKey, q->parentWidget()->geometry());
 
         QRect maxRect = qApp->desktop()->availableGeometry();
@@ -75,19 +76,19 @@ void QrTitleBarPrivate::init()
     });
 
     normalBtn = new QPushButton(q);
-    normalBtn->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarNormalButton));
-    normalBtn->setStyleSheet(normalBtn->styleSheet() + ";border:none;");
+    normalBtn->setObjectName("normalBtn");
     q->connect(normalBtn, &QPushButton::clicked, [this](){
         normalBtn->hide();
         maxBtn->show();
 
         Q_Q(QrTitleBar);
+        qDebug() << "titlebar normal click of " << geometrySettingKey
+                 << ", restore normal rect:" << setting.value(geometrySettingKey).toRect();
         q->parentWidget()->setGeometry(setting.value(geometrySettingKey).toRect());
     });
 
     closeBtn = new QPushButton(q);
-    closeBtn->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarCloseButton));
-    closeBtn->setStyleSheet(closeBtn->styleSheet() + ";border:none;");
+    closeBtn->setObjectName("closeBtn");
     q->connect(closeBtn, &QPushButton::clicked, [this](){
         Q_Q(QrTitleBar);
         q->parentWidget()->close();
@@ -111,7 +112,15 @@ void QrTitleBarPrivate::init()
     initForWindows(layout);
 #endif
 
-    q->setLayout(layout);
+    QWidget * container = new QWidget(q);
+    container->setObjectName("container");
+    container->setLayout(layout);
+
+    QHBoxLayout *barLayout = new QHBoxLayout;
+    barLayout->setContentsMargins(0, 0, 0, 0);
+    barLayout->setSpacing(0);
+    barLayout->addWidget(container);
+    q->setLayout(barLayout);
 }
 
 void QrTitleBarPrivate::initForMac(QHBoxLayout *layout)
@@ -187,6 +196,19 @@ void QrTitleBar::setLogo(const QPixmap &logo)
 {
     Q_D(QrTitleBar);
     d->logo->setPixmap(logo);
+}
+
+void QrTitleBar::defaultButtonStyle()
+{
+    Q_D(QrTitleBar);
+    d->minBtn->setIcon(style()->standardIcon(QStyle::SP_TitleBarMinButton));
+    d->maxBtn->setIcon(style()->standardIcon(QStyle::SP_TitleBarMaxButton));
+    d->normalBtn->setIcon(style()->standardIcon(QStyle::SP_TitleBarNormalButton));
+    d->closeBtn->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
+    d->minBtn->setStyleSheet(d->minBtn->styleSheet() + ";border:none;");
+    d->maxBtn->setStyleSheet(d->maxBtn->styleSheet() + ";border:none;");
+    d->normalBtn->setStyleSheet(d->normalBtn->styleSheet() + ";border:none;");
+    d->closeBtn->setStyleSheet(d->closeBtn->styleSheet() + ";border:none;");
 }
 
 void QrTitleBar::mouseDoubleClickEvent(QMouseEvent *e)

@@ -1,4 +1,4 @@
-#include "qreditablelabel.h"
+﻿#include "qreditablelabel.h"
 
 #include <QtWidgets/qtextedit.h>
 #include <QtWidgets/qlayout.h>

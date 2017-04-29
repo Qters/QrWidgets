@@ -11,6 +11,7 @@ QrTitlebarDemo::QrTitlebarDemo(QWidget *parent) :
 
     setWindowFlags(Qt::FramelessWindowHint);
 
+    ui->titlebar->defaultButtonStyle();
     ui->titlebar->setLogo(style()->standardPixmap(QStyle::SP_DirIcon));
     ui->titlebar->setTitle("Title");
 }

@@ -36,6 +36,7 @@ public:
     void setFlags(BarFlags flags);
     void setTitle(const QString& title);
     void setLogo(const QPixmap& logo);
+    void defaultButtonStyle();
 
     // QWidget interface
 protected:

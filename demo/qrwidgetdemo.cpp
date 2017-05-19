@@ -8,6 +8,11 @@
 #include "editablelabel/editablelabelwidget.h"
 #include "titlebar/qrtitlebardemo.h"
 
+#include "contact/contactdata.h"
+#include "contact/contactpage.h"
+
+#include "chat/chatwidget.h"
+
 QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QrWidgetDemo)
@@ -60,6 +65,54 @@ QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
         titlebarDemo.show();
 
         widgetDoModelFunc(&titlebarDemo);
+    });
+    connect(ui->contact, &QPushButton::clicked, [this, widgetDoModelFunc](){
+        ContactData member1;
+        member1.groupid = 1;
+        member1.groupName = "Group1";
+        member1.name = "Alias";
+        member1.level = 5;
+
+        ContactData member2;
+        member2.groupid = 1;
+        member2.groupName = "Group1";
+        member2.name = "Bez";
+        member2.level = 3;
+
+        ContactData member3;
+        member3.groupid = 1;
+        member3.groupName = "Group1";
+        member3.name = "Duglas";
+        member3.level = 1;
+
+        ContactData member4;
+        member4.groupid = 2;
+        member4.groupName = "Group2";
+        member4.name = "Dan";
+        member4.level = 2;
+
+        ContactData member5;
+        member5.groupid = 2;
+        member5.groupName = "Group2";
+        member5.name = "Olio";
+        member5.level = 3;
+
+        ContactPage contactPage;
+        contactPage.init(QVector<ContactData>()
+                << member1
+                 <<member2
+                 <<member3
+                 <<member4
+                 <<member5);
+        contactPage.show();
+
+        widgetDoModelFunc(&contactPage);
+    });
+    connect(ui->chat, &QPushButton::clicked, [this, widgetDoModelFunc](){
+        ChatWidget chatDemo;
+        chatDemo.show();
+
+        widgetDoModelFunc(&chatDemo);
     });
 }
 

@@ -23,10 +23,10 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="0">
-     <widget class="QPushButton" name="toast">
+    <item row="2" column="1">
+     <widget class="QPushButton" name="titlebar">
       <property name="text">
-       <string>toast</string>
+       <string>titlebar</string>
       </property>
      </widget>
     </item>
@@ -37,17 +37,10 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QPushButton" name="waitingspinner">
+    <item row="1" column="0">
+     <widget class="QPushButton" name="toast">
       <property name="text">
-       <string>waiting spinner</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QPushButton" name="emailinputter">
-      <property name="text">
-       <string>email inputter</string>
+       <string>toast</string>
       </property>
      </widget>
     </item>
@@ -58,10 +51,31 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QPushButton" name="titlebar">
+    <item row="0" column="1">
+     <widget class="QPushButton" name="emailinputter">
       <property name="text">
-       <string>titlebar</string>
+       <string>email inputter</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QPushButton" name="waitingspinner">
+      <property name="text">
+       <string>waiting spinner</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QPushButton" name="chat">
+      <property name="text">
+       <string>chat</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QPushButton" name="contact">
+      <property name="text">
+       <string>contact</string>
       </property>
      </widget>
     </item>

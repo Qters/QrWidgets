@@ -12,6 +12,7 @@
 #include "contact/contactpage.h"
 
 #include "chat/chatwidget.h"
+#include "listview/listviewwidget.h"
 
 QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
     QWidget(parent),
@@ -113,6 +114,12 @@ QrWidgetDemo::QrWidgetDemo(QWidget *parent) :
         chatDemo.show();
 
         widgetDoModelFunc(&chatDemo);
+    });
+    connect(ui->listview, &QPushButton::clicked, [this, widgetDoModelFunc](){
+        ListviewWidget listviewDemo;
+        listviewDemo.show();
+
+        widgetDoModelFunc(&listviewDemo);
     });
 }
 

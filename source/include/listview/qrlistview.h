@@ -22,7 +22,8 @@ public:
     QrListViewData();
 
 public:
-    virtual bool filter(const QRegExp& regExp);
+    virtual int key() const;
+    virtual bool filter(const QRegExp& regExp) const;
 };
 
 /*!
@@ -41,6 +42,7 @@ public:
     QrListVidewDelegate();
 
 Q_SIGNALS:
+    //  notify to change listview's view
     void dataChanged();
 
 public:
@@ -53,6 +55,7 @@ public:
      * \param data
      */
     void managerData(QrListViewData* data);
+    QrListViewData* getData(int key);
 
     void filter(const QRegExp& regExp);
     int itemsSize() const;

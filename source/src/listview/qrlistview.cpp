@@ -36,6 +36,7 @@ public:
 
     QVector<QrListViewData*> rawDataset;
     QVector<QrListViewData*> viewDataset;
+    QMap<int, QrListViewData*> mapDataset;
 
 public:
     virtual ~QrListVidewDelegatePrivate();
@@ -72,7 +73,19 @@ void QrListVidewDelegate::managerData(QrListViewData *data)
 
     Q_D(QrListVidewDelegate);
     d->rawDataset.push_back(data);
+    d->mapDataset[data->key()] = data;
     d->viewDataset.push_back(data);
+}
+
+QrListViewData *QrListVidewDelegate::getData(int key)
+{
+    Q_D(QrListVidewDelegate);
+    if(! d->mapDataset.contains(key)) {
+        qDebug() << "listview's delegate havn't data of " << key;
+        return nullptr;
+    }
+
+    return d->mapDataset[key];
 }
 
 void QrListVidewDelegate::filter(const QRegExp &regExp)
@@ -140,7 +153,12 @@ QrListViewData::QrListViewData()
 
 }
 
-bool QrListViewData::filter(const QRegExp& regExp)
+int Qters::QrWidgets::QrListViewData::key() const
+{
+    return -1;
+}
+
+bool QrListViewData::filter(const QRegExp& regExp) const
 {
     Q_UNUSED(regExp);
     return true;

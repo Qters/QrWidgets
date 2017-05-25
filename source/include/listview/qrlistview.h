@@ -10,19 +10,59 @@
 
 NS_QRWIDGETS_BEGIN
 
+/*!
+ * \brief Listview's cell data
+ */
+class QrListViewDataPrivate;
+class QRWIDGETSSHARED_EXPORT QrListViewData {
+
+    QR_DECLARE_PRIVATE(QrListViewData)
+
+public:
+    QrListViewData();
+
+public:
+    virtual bool filter(const QRegExp& regExp);
+};
+
+/*!
+ * \brief Listview's Delegate
+ *  1. auto manager data
+ *  2. filter
+ */
+class QrListVidewDelegatePrivate;
 class QRWIDGETSSHARED_EXPORT QrListVidewDelegate : public QObject
 {
     Q_OBJECT
+
+    QR_DECLARE_PRIVATE(QrListVidewDelegate)
+
+public:
+    QrListVidewDelegate();
 
 Q_SIGNALS:
     void dataChanged();
 
 public:
-    virtual int itemsSize() const = 0;
     virtual QWidget* createItemWidget() = 0;
-    virtual void setItemWidgetByIndex(int index, QWidget* itemWidget) = 0;
+    virtual void setItemWidgetByData(QrListViewData* data, QWidget* itemWidget) = 0;
+
+public:
+    /*!
+     * \brief should put data after YOU create(NEW), leave DELETE data to DELEGATE:
+     * \param data
+     */
+    void managerData(QrListViewData* data);
+
+    void filter(const QRegExp& regExp);
+    int itemsSize() const;
+
+    void setItemWidgetByIndex(int index, QWidget *itemWidget);
 };
 
+/*!
+ * \brief Listview
+ */
 class QrListViewPrivate;
 class QRWIDGETSSHARED_EXPORT QrListView : public QAbstractScrollArea
 {

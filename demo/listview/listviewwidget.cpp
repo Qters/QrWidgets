@@ -3,6 +3,8 @@
 
 #include "listdelegate.h"
 
+USING_NS_QRWIDGETS;
+
 ListviewWidget::ListviewWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ListviewWidget)
@@ -17,6 +19,13 @@ ListviewWidget::ListviewWidget(QWidget *parent) :
     }
 
     ui->listview->setDelegate(delegate);
+
+    connect(ui->filter, &QLineEdit::textChanged, [this](const QString &text){
+        QRegExp filterReg(QString("*%1*").arg(text));
+        filterReg.setCaseSensitivity(Qt::CaseInsensitive);
+        filterReg.setPatternSyntax(QRegExp::Wildcard);
+        ui->listview->delegate()->filter(filterReg);
+    });
 }
 
 ListviewWidget::~ListviewWidget()

@@ -1,12 +1,16 @@
 #include "listview/qrlistview.h"
 
-#include <QDebug>
-#include <QScrollBar>
-#include <QResizeEvent>
+#include <QtCore/qdebug.h>
+#include <QtCore/qtimer.h>
+#include <QtCore/qqueue.h>
+#include <QtWidgets/qscrollbar.h>
+#include <QtGui/qevent.h>
 #include <QWheelEvent>
 #include <QPoint>
 
 NS_QRWIDGETS_BEGIN
+
+///////////////////////////////////////////////////////
 
 class QrListViewPrivate {
 public:
@@ -18,9 +22,131 @@ public:
     int oldDatasetSize = 0;
 };
 
+///////////////////////////////////////////////////////
+
+class QrListViewDataPrivate {
+};
+
+///////////////////////////////////////////////////////
+
+class QrListVidewDelegatePrivate {
+public:
+    bool watingFilter = false;
+    QQueue<QRegExp> filterQueue;
+
+    QVector<QrListViewData*> rawDataset;
+    QVector<QrListViewData*> viewDataset;
+
+public:
+    virtual ~QrListVidewDelegatePrivate();
+};
+
+///////////////////////////////////////////////////////
+
+QrListVidewDelegatePrivate::~QrListVidewDelegatePrivate()
+{
+    Q_FOREACH(QrListViewData* data, rawDataset) {
+        delete data;
+        data = nullptr;
+    }
+}
+
 NS_QRWIDGETS_END
 
 USING_NS_QRWIDGETS;
+
+///////////////////////////////////////////////////////
+
+QrListVidewDelegate::QrListVidewDelegate()
+    : d_ptr(new QrListVidewDelegatePrivate)
+{
+
+}
+
+void QrListVidewDelegate::managerData(QrListViewData *data)
+{
+    if(nullptr == data) {
+        qDebug() << "list view can't mananger nullptr data";
+        return;
+    }
+
+    Q_D(QrListVidewDelegate);
+    d->rawDataset.push_back(data);
+    d->viewDataset.push_back(data);
+}
+
+void QrListVidewDelegate::filter(const QRegExp &regExp)
+{
+    Q_D(QrListVidewDelegate);
+    int limitSize = 10;
+    if(d->filterQueue.size() > limitSize) {
+        for(int i=0; i<limitSize/2; i++) {
+            d->filterQueue.removeAt(i);
+        }
+    }
+    d->filterQueue.append(regExp);
+    if (d->watingFilter) {
+        qDebug() << "waiting filter";
+        return;
+    }
+
+    d->watingFilter = true;
+    QTimer::singleShot(500, this, [this](){
+        qDebug() << "filter!";
+
+        Q_D(QrListVidewDelegate);
+        d->viewDataset.clear();
+        Q_FOREACH(QrListViewData* data, d->rawDataset) {
+            if(! data->filter(d->filterQueue.last())) {
+                continue;
+            }
+            d->viewDataset.push_back(data);
+        }
+        emit dataChanged();
+
+        d->watingFilter = false;
+        qDebug() << "filter finish!";
+    });
+}
+
+int QrListVidewDelegate::itemsSize() const
+{
+    Q_D(const QrListVidewDelegate);
+    return d->viewDataset.size();
+}
+
+void QrListVidewDelegate::setItemWidgetByIndex(int index, QWidget *itemWidget)
+{
+    Q_D(QrListVidewDelegate);
+    if(index > d->viewDataset.size()) {
+        qDebug() << "list size is smaller than " << index;
+        return;
+    }
+
+    QrListViewData* data = d->viewDataset[index];
+    if(nullptr == data) {
+        qDebug() << "cell's data is nullptr";
+        return;
+    }
+
+    setItemWidgetByData(data, itemWidget);
+}
+
+///////////////////////////////////////////////////////
+
+QrListViewData::QrListViewData()
+    : d_ptr(new QrListViewDataPrivate)
+{
+
+}
+
+bool QrListViewData::filter(const QRegExp& regExp)
+{
+    Q_UNUSED(regExp);
+    return true;
+}
+
+///////////////////////////////////////////////////////
 
 QrListView::QrListView(QWidget *parent)
     : QAbstractScrollArea(parent),
@@ -146,11 +272,6 @@ void QrListView::dataChanged()
     int itemWidgetOffset =(vscorllbarValue % d->itemHeight) * -1;
 
     Q_FOREACH(QWidget* itemWidget, d->itemWidgets) {
-        if(currentItemIndex > d->delegate->itemsSize()) {
-            qDebug() << "listview's index big than size, " << currentItemIndex << " " << d->delegate->itemsSize();
-            break;
-        }
-
         itemWidget->move(0, itemWidgetOffset);
 
         if(currentItemIndex < d->delegate->itemsSize()) {

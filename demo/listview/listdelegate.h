@@ -6,13 +6,14 @@
 #include "qrglobal.h"
 
 class ListCellData : public Qters::QrWidgets::QrListViewData {
-    // QrListViewData interface
-public:
-    virtual bool filter(const QRegExp &regExp) override;
-
 public:
     QString username;
     QString selfSign;
+
+    // QrListViewData interface
+public:
+    virtual bool filter(const QRegExp &regExp) const override;
+    virtual bool compare(const Qters::QrWidgets::QrListViewData *other) const override;
 };
 
 class ListDelegate : public Qters::QrWidgets::QrListVidewDelegate

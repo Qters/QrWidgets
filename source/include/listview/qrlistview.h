@@ -24,6 +24,7 @@ public:
 public:
     virtual int key() const;
     virtual bool filter(const QRegExp& regExp) const;
+    virtual bool compare(const QrListViewData *other) const;
 };
 
 /*!
@@ -57,6 +58,7 @@ public:
     void managerData(QrListViewData* data);
     QrListViewData* getData(int key);
 
+    void sort();
     void filter(const QRegExp& regExp);
     int itemsSize() const;
 

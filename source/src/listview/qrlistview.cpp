@@ -31,6 +31,8 @@ class QrListViewDataPrivate {
 
 class QrListVidewDelegatePrivate {
 public:
+    bool watingSort = false;
+
     bool watingFilter = false;
     QQueue<QRegExp> filterQueue;
 
@@ -86,6 +88,31 @@ QrListViewData *QrListVidewDelegate::getData(int key)
     }
 
     return d->mapDataset[key];
+}
+
+void Qters::QrWidgets::QrListVidewDelegate::sort()
+{
+    Q_D(QrListVidewDelegate);
+    if (d->watingSort) {
+        qDebug() << "waiting sort";
+        return;
+    }
+
+    d->watingSort = true;
+    QTimer::singleShot(500, this, [this](){
+        Q_D(QrListVidewDelegate);
+        qDebug() << "sort!";
+
+        qSort(d->rawDataset.begin(), d->rawDataset.end(),
+              [](const QrListViewData* left, const QrListViewData* right) {
+            return left->compare(right);
+        });
+
+        emit dataChanged();
+
+        d->watingSort = false;
+        qDebug() << "sort finish!";
+    });
 }
 
 void QrListVidewDelegate::filter(const QRegExp &regExp)
@@ -161,6 +188,11 @@ int QrListViewData::key() const
 bool QrListViewData::filter(const QRegExp& regExp) const
 {
     Q_UNUSED(regExp);
+    return true;
+}
+
+bool QrListViewData::compare(const QrListViewData *other) const
+{
     return true;
 }
 

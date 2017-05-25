@@ -153,7 +153,7 @@ QrListViewData::QrListViewData()
 
 }
 
-int Qters::QrWidgets::QrListViewData::key() const
+int QrListViewData::key() const
 {
     return -1;
 }

@@ -36,11 +36,6 @@ void ListDelegate::setItemWidgetByData(QrListViewData *data, QWidget *itemWidget
     cell->init(cellData);
 }
 
-bool ListCellData::filter(const QRegExp &regExp) const
-{
-    return regExp.exactMatch(username);
-}
-
 bool ListCellData::compare(const QrListViewData *_other) const
 {
     const ListCellData* other = static_cast<const ListCellData*>(_other);

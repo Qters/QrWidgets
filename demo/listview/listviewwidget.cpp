@@ -24,7 +24,13 @@ ListviewWidget::ListviewWidget(QWidget *parent) :
         QRegExp filterReg(QString("*%1*").arg(text));
         filterReg.setCaseSensitivity(Qt::CaseInsensitive);
         filterReg.setPatternSyntax(QRegExp::Wildcard);
-        ui->listview->delegate()->filter(filterReg);
+        ui->listview->delegate()->filter([filterReg](QrListViewData* _data) -> bool{
+            ListCellData* data = static_cast<ListCellData*>(_data);
+            if(nullptr == data) {
+                return false;
+            }
+            return filterReg.exactMatch(data->username);
+        });
     });
 }
 

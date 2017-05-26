@@ -1,6 +1,8 @@
 #ifndef QRLISTVIEW_H
 #define QRLISTVIEW_H
 
+#include <functional>
+
 #include <QtWidgets/qwidget.h>
 #include <QtWidgets/qabstractscrollarea.h>
 
@@ -22,8 +24,7 @@ public:
     QrListViewData();
 
 public:
-    virtual int key() const;
-    virtual bool filter(const QRegExp& regExp) const;
+    virtual long key() const;
     virtual bool compare(const QrListViewData *other) const;
 };
 
@@ -55,13 +56,15 @@ public:
      * \brief should put data after YOU create(NEW), leave DELETE data to DELEGATE:
      * \param data
      */
-    void managerData(QrListViewData* data);
-    QrListViewData* getData(int key);
+    void addData(QrListViewData* data);
+    void deleteData(QrListViewData* data);
+    QrListViewData* getData(long key);
+    bool isDataExist(long key) const;
 
     void sort();
-    void filter(const QRegExp& regExp);
-    int itemsSize() const;
+    void filter(std::function<bool (QrListViewData*)> filterFunc);
 
+    int itemsSize() const;
     void setItemWidgetByIndex(int index, QWidget *itemWidget);
 };
 

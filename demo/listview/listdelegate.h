@@ -12,7 +12,6 @@ public:
 
     // QrListViewData interface
 public:
-    virtual bool filter(const QRegExp &regExp) const override;
     virtual bool compare(const Qters::QrWidgets::QrListViewData *other) const override;
 };
 

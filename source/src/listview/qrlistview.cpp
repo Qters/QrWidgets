@@ -34,11 +34,11 @@ public:
     bool watingSort = false;
 
     bool watingFilter = false;
-    QQueue<QRegExp> filterQueue;
+    QQueue<std::function<bool (QrListViewData*)> > filterFuncQueue;
 
     QVector<QrListViewData*> rawDataset;
     QVector<QrListViewData*> viewDataset;
-    QMap<int, QrListViewData*> mapDataset;
+    QMap<long, QrListViewData*> mapDataset;
 
 public:
     virtual ~QrListVidewDelegatePrivate();
@@ -66,7 +66,7 @@ QrListVidewDelegate::QrListVidewDelegate()
 
 }
 
-void QrListVidewDelegate::managerData(QrListViewData *data)
+void QrListVidewDelegate::addData(QrListViewData *data)
 {
     if(nullptr == data) {
         qDebug() << "list view can't mananger nullptr data";
@@ -79,7 +79,7 @@ void QrListVidewDelegate::managerData(QrListViewData *data)
     d->viewDataset.push_back(data);
 }
 
-QrListViewData *QrListVidewDelegate::getData(int key)
+QrListViewData *QrListVidewDelegate::getData(long key)
 {
     Q_D(QrListVidewDelegate);
     if(! d->mapDataset.contains(key)) {
@@ -88,6 +88,26 @@ QrListViewData *QrListVidewDelegate::getData(int key)
     }
 
     return d->mapDataset[key];
+}
+
+void QrListVidewDelegate::deleteData(QrListViewData *data)
+{
+    if(nullptr == data) {
+        qDebug() << "data is nullptr, would not remove";
+        return;
+    }
+    Q_D(QrListVidewDelegate);
+    d->rawDataset.removeOne(data);
+    d->mapDataset.remove(data->key());
+    d->viewDataset.removeOne(data);
+
+    emit dataChanged();
+}
+
+bool QrListVidewDelegate::isDataExist(long key) const
+{
+    Q_D(const QrListVidewDelegate);
+    return d->mapDataset.contains(key);
 }
 
 void Qters::QrWidgets::QrListVidewDelegate::sort()
@@ -108,6 +128,16 @@ void Qters::QrWidgets::QrListVidewDelegate::sort()
             return left->compare(right);
         });
 
+        if(d->rawDataset.size() != d->viewDataset.size()) {
+            qSort(d->viewDataset.begin(), d->viewDataset.end(),
+                  [](const QrListViewData* left, const QrListViewData* right) {
+                return left->compare(right);
+            });
+        } else {
+            d->viewDataset.clear();
+            d->viewDataset = d->rawDataset;
+        }
+
         emit dataChanged();
 
         d->watingSort = false;
@@ -115,16 +145,16 @@ void Qters::QrWidgets::QrListVidewDelegate::sort()
     });
 }
 
-void QrListVidewDelegate::filter(const QRegExp &regExp)
+void QrListVidewDelegate::filter(std::function<bool (QrListViewData*)> filterFunc)
 {
     Q_D(QrListVidewDelegate);
     int limitSize = 10;
-    if(d->filterQueue.size() > limitSize) {
+    if(d->filterFuncQueue.size() > limitSize) {
         for(int i=0; i<limitSize/2; i++) {
-            d->filterQueue.removeAt(i);
+            d->filterFuncQueue.removeAt(i);
         }
     }
-    d->filterQueue.append(regExp);
+    d->filterFuncQueue.append(filterFunc);
     if (d->watingFilter) {
         qDebug() << "waiting filter";
         return;
@@ -137,7 +167,7 @@ void QrListVidewDelegate::filter(const QRegExp &regExp)
         Q_D(QrListVidewDelegate);
         d->viewDataset.clear();
         Q_FOREACH(QrListViewData* data, d->rawDataset) {
-            if(! data->filter(d->filterQueue.last())) {
+            if(! d->filterFuncQueue.last()(data)) {
                 continue;
             }
             d->viewDataset.push_back(data);
@@ -180,15 +210,9 @@ QrListViewData::QrListViewData()
 
 }
 
-int QrListViewData::key() const
+long QrListViewData::key() const
 {
     return -1;
-}
-
-bool QrListViewData::filter(const QRegExp& regExp) const
-{
-    Q_UNUSED(regExp);
-    return true;
 }
 
 bool QrListViewData::compare(const QrListViewData *other) const

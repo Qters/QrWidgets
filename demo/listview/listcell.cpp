@@ -19,4 +19,5 @@ void ListCell::init(ListCellData *data)
 {
     ui->name->setText(data->username);
     ui->selfSign->setText(data->selfSign);
+    setToolTip(data->tooltip);
 }

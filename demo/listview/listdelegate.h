@@ -9,6 +9,7 @@ class ListCellData : public Qters::QrWidgets::QrListViewData {
 public:
     QString username;
     QString selfSign;
+    QString tooltip;
 
     // QrListViewData interface
 public:

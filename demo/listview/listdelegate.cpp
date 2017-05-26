@@ -11,7 +11,8 @@ void ListDelegate::appendUser(const QString &username, const QString &selfSign)
     ListCellData* data = new ListCellData;
     data->username = username;
     data->selfSign = selfSign;
-    managerData(data);
+    data->tooltip = QString("I'm %1").arg(username);
+    addData(data);
 }
 
 QWidget *ListDelegate::createItemWidget()

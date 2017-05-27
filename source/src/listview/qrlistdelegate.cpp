@@ -199,6 +199,9 @@ void QrListVidewDelegate::filter(std::function<bool (QrListViewData*)> filterFun
         emit dataChanged();
 
         d->watingFilter = false;
+
+        emit dataFiltered(d->viewDataset.empty());
+
         qDebug() << "filter finish!";
     });
 }

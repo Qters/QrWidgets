@@ -34,6 +34,8 @@ ListviewWidget::ListviewWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->emptyTips->hide();
+
     Q_D(ListviewWidget);
     d->delegate = new ListDelegate();
     for(int i=0; i<100000; i++) {
@@ -41,7 +43,6 @@ ListviewWidget::ListviewWidget(QWidget *parent) :
         d->delegate->appendUser(username,
                              QString("Sign of %1.").arg(username));
     }
-
     ui->listview->setDelegate(d->delegate);
 
     d->cellInfo = new ListCellInfo(this);
@@ -51,6 +52,16 @@ ListviewWidget::ListviewWidget(QWidget *parent) :
         Q_D(ListviewWidget);
         d->cellInfo->init(data.username, data.selfSign);
         d->cellInfo->show();
+    });
+    connect(d->delegate, &ListDelegate::dataFiltered, [this](bool isEmpty){
+        if(isEmpty) {
+            ui->emptyTips->setText("no one.");
+            ui->emptyTips->show();
+            ui->listview->hide();
+        } else {
+            ui->listview->show();
+            ui->emptyTips->hide();
+        }
     });
 
     connect(ui->filter, &QLineEdit::textChanged, [this](const QString &text){

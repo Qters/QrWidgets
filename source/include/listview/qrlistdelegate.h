@@ -47,6 +47,7 @@ public:
 Q_SIGNALS:
     //  notify to change listview's view
     void dataChanged();
+    void dataFiltered(bool isEmpty);
 
 public:
     virtual QWidget* createItemWidget() = 0;

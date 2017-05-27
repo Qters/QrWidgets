@@ -3,6 +3,9 @@
 
 #include <QWidget>
 
+#include "listview/qrlistview.h"
+#include "listview/qrlistdelegate.h"
+
 class ListCellData;
 
 namespace Ui {
@@ -18,7 +21,7 @@ public:
     ~ListCell();
 
 public:
-    void init(ListCellData* data);
+    bool init(ListCellData *_data);
 
 private:
     Ui::ListCell *ui;

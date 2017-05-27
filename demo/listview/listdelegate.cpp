@@ -1,17 +1,44 @@
 #include "listdelegate.h"
 
 #include <QtCore/qdebug.h>
+#include <QtWidgets/qmenu.h>
 
 #include "listcell.h"
+#include "listcellinfo.h"
+
 
 USING_NS_QRWIDGETS;
+
+ListDelegate::ListDelegate()
+    : QrListVidewDelegate()
+{
+}
+
+void ListDelegate::initMenu(QMenu *menu)
+{
+    QAction* infoAction = menu->addAction("info");
+    connect(infoAction, &QAction::triggered, [this](bool checked){
+        Q_UNUSED(checked);
+
+        ListCellData* data = static_cast<ListCellData*>(menuData());
+        if(nullptr == data) {
+            qDebug() << "info action's data is null";
+            return;
+        }
+        emit showInfo(*data);
+    });
+}
+
+bool ListDelegate::hasMenu() const
+{
+    return true;
+}
 
 void ListDelegate::appendUser(const QString &username, const QString &selfSign)
 {
     ListCellData* data = new ListCellData;
     data->username = username;
     data->selfSign = selfSign;
-    data->tooltip = QString("I'm %1").arg(username);
     addData(data);
 }
 
@@ -20,22 +47,22 @@ QWidget *ListDelegate::createItemWidget()
     return new ListCell();
 }
 
-void ListDelegate::setItemWidgetByData(QrListViewData *data, QWidget *itemWidget)
+void ListDelegate::setItemWidgetByData(QrListViewData *_data, QWidget *_itemWidget)
 {
-    ListCell* cell = static_cast<ListCell*>(itemWidget);
-    if(nullptr == cell) {
-        qDebug() << "list cell is nullptr";
+    ListCell *itemWidget = static_cast<ListCell *>(_itemWidget);
+    if(nullptr == itemWidget) {
         return;
     }
 
-    ListCellData* cellData = static_cast<ListCellData*>(data);
-    if(nullptr == cellData) {
-        qDebug() << "cell's data is nullptr";
+    ListCellData *data = static_cast<ListCellData *>(_data);
+    if(nullptr == data) {
         return;
     }
 
-    cell->init(cellData);
+    itemWidget->init(data);
 }
+
+///////////////////////////////////////////////////////
 
 bool ListCellData::compare(const QrListViewData *_other) const
 {

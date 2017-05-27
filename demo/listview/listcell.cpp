@@ -3,6 +3,8 @@
 
 #include "listdelegate.h"
 
+USING_NS_QRWIDGETS;
+
 ListCell::ListCell(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ListCell)
@@ -15,9 +17,12 @@ ListCell::~ListCell()
     delete ui;
 }
 
-void ListCell::init(ListCellData *data)
+bool ListCell::init(ListCellData *data)
 {
     ui->name->setText(data->username);
     ui->selfSign->setText(data->selfSign);
-    setToolTip(data->tooltip);
+
+    setToolTip(QString("I'm %1").arg(data->username));
+
+    return true;
 }

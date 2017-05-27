@@ -63,6 +63,16 @@ ListviewWidget::ListviewWidget(QWidget *parent) :
             ui->emptyTips->hide();
         }
     });
+    connect(d->delegate, &ListDelegate::dataEmpty, [this](bool isEmpty){
+        if(isEmpty) {
+            ui->emptyTips->setText("empty");
+            ui->emptyTips->show();
+            ui->listview->hide();
+        } else {
+            ui->listview->show();
+            ui->emptyTips->hide();
+        }
+    });
 
     connect(ui->filter, &QLineEdit::textChanged, [this](const QString &text){
         QRegExp filterReg(QString("*%1*").arg(text));

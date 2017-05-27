@@ -1,5 +1,5 @@
-#ifndef QRLISTDELEGATE2_H
-#define QRLISTDELEGATE2_H
+#ifndef QRLISTDELEGATE_H
+#define QRLISTDELEGATE_H
 
 #include <functional>
 
@@ -47,6 +47,7 @@ public:
 Q_SIGNALS:
     //  notify to change listview's view
     void dataChanged();
+    void dataEmpty(bool isEmpty);
     void dataFiltered(bool isEmpty);
 
 public:
@@ -74,10 +75,12 @@ public:
     void sort();
     void filter(std::function<bool (QrListViewData*)> filterFunc);
 
+    void clear();
     int itemsSize() const;
+    int rawSize() const;
     void setItemWidgetByIndex(int index, QWidget *itemWidget);
 };
 
 NS_QRWIDGETS_END
 
-#endif // QRLISTDELEGATE2_H
+#endif // QRLISTDELEGATE_H

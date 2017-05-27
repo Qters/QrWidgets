@@ -125,6 +125,10 @@ void QrListView::resizeEvent(QResizeEvent * event)
 
     dataChanged();
 
+    if(0 == d->delegate->rawSize()) {
+        emit d->delegate->dataEmpty(true);
+    }
+
     return QAbstractScrollArea::resizeEvent(event);
 }
 

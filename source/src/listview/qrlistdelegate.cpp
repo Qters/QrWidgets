@@ -44,10 +44,8 @@ QrListVidewDelegatePrivate::QrListVidewDelegatePrivate(QrListVidewDelegate *q)
 
 QrListVidewDelegatePrivate::~QrListVidewDelegatePrivate()
 {
-    Q_FOREACH(QrListViewData* data, rawDataset) {
-        delete data;
-        data = nullptr;
-    }
+    Q_Q(QrListVidewDelegate);
+    q->clear();
 }
 
 NS_QRWIDGETS_END
@@ -79,6 +77,21 @@ QrListView *QrListVidewDelegate::listview()
     return d->listview;
 }
 
+void QrListVidewDelegate::clear()
+{
+    Q_D(QrListVidewDelegate);
+    Q_FOREACH(QrListViewData* data, d->rawDataset) {
+        delete data;
+        data = nullptr;
+    }
+    d->rawDataset.clear();
+    d->viewDataset.clear();
+    d->mapDataset.clear();
+    d->filterFuncQueue.clear();
+
+    emit dataChanged();
+}
+
 void QrListVidewDelegate::addData(QrListViewData *data)
 {
     if(nullptr == data) {
@@ -90,6 +103,10 @@ void QrListVidewDelegate::addData(QrListViewData *data)
     d->rawDataset.push_back(data);
     d->mapDataset[data->key()] = data;
     d->viewDataset.push_back(data);
+
+    if(1 == d->rawDataset.size()) {
+        emit dataEmpty(false);
+    }
 }
 
 QrListViewData *QrListVidewDelegate::getData(long key)
@@ -115,6 +132,10 @@ void QrListVidewDelegate::deleteData(QrListViewData *data)
     d->viewDataset.removeOne(data);
 
     emit dataChanged();
+
+    if(d->rawDataset.isEmpty()) {
+        emit dataEmpty(true);
+    }
 }
 
 bool QrListVidewDelegate::isDataExist(long key) const
@@ -210,6 +231,12 @@ int QrListVidewDelegate::itemsSize() const
 {
     Q_D(const QrListVidewDelegate);
     return d->viewDataset.size();
+}
+
+int QrListVidewDelegate::rawSize() const
+{
+    Q_D(const QrListVidewDelegate);
+    return d->rawDataset.size();
 }
 
 void QrListVidewDelegate::setItemWidgetByIndex(int index, QWidget *item)

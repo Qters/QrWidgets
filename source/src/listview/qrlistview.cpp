@@ -17,6 +17,7 @@ class QrListViewPrivate {
 public:
     QMenu *menu = nullptr;
 
+    QMap<QWidget*, int> widgetItemIndex;
     std::list<QWidget*> itemWidgets;
     QrListVidewDelegate *delegate = nullptr;
 
@@ -26,12 +27,25 @@ public:
 
 public:
     QrListViewPrivate(QrListView *q);
+    QWidget *createWidget();
 };
 
 QrListViewPrivate::QrListViewPrivate(QrListView *q)
     : q_ptr(q)
 {
 
+}
+
+QWidget* QrListViewPrivate::createWidget()
+{
+    Q_Q(QrListView);
+
+    QWidget *itemWidget = delegate->createItemWidget();
+    itemWidget->setParent(q);
+    itemWidget->installEventFilter(q);
+    itemWidgets.push_back(itemWidget);
+
+    return itemWidget;
 }
 
 NS_QRWIDGETS_END
@@ -51,6 +65,7 @@ QrListView::~QrListView()
 {
     Q_D(QrListView);
     d->itemWidgets.clear();
+    d->widgetItemIndex.clear();
     d->delegate = nullptr;
 }
 
@@ -101,9 +116,7 @@ void QrListView::resizeEvent(QResizeEvent * event)
     }
 
     if(d->itemWidgets.empty()) {
-        QWidget *itemWidget = d->delegate->createItemWidget();
-        itemWidget->setParent(this);
-        d->itemWidgets.push_back(itemWidget);
+        d->createWidget();
     }
 
     int listviewHeight = event->size().height();
@@ -112,9 +125,7 @@ void QrListView::resizeEvent(QResizeEvent * event)
     int itemCount = listviewHeight/d->itemHeight + 2;
 
     for(;d->itemWidgets.size() < itemCount;){
-        QWidget *itemWidget = d->delegate->createItemWidget();
-        itemWidget->setParent(this);
-        d->itemWidgets.push_back(itemWidget);
+        d->createWidget();
     }
 
     Q_FOREACH(QWidget* itemWidget, d->itemWidgets) {
@@ -130,6 +141,24 @@ void QrListView::resizeEvent(QResizeEvent * event)
     }
 
     return QAbstractScrollArea::resizeEvent(event);
+}
+
+bool QrListView::eventFilter(QObject *watched, QEvent *event)
+{
+    switch(event->type()) {
+    case QEvent::MouseButtonDblClick:
+    {
+        Q_D(QrListView);
+        QWidget* widget = static_cast<QWidget*>(watched);
+        if(nullptr == widget) {
+            break;
+        }
+        d->delegate->itemDoubleClickByIndex(d->widgetItemIndex[widget]);
+    }
+        break;
+    }
+
+    return QAbstractScrollArea::eventFilter(watched, event);
 }
 
 void QrListView::setDelegate(QrListVidewDelegate *delegate)
@@ -182,6 +211,7 @@ void QrListView::dataChanged()
 
     Q_FOREACH(QWidget* itemWidget, d->itemWidgets) {
         itemWidget->move(0, itemWidgetOffset);
+        d->widgetItemIndex[itemWidget] = currentItemIndex;
 
         if(currentItemIndex < d->delegate->itemsSize()) {
             d->delegate->setItemWidgetByIndex(currentItemIndex, itemWidget);

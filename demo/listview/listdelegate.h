@@ -38,6 +38,7 @@ public:
 
     virtual QWidget *createItemWidget() override;
     virtual void setItemWidgetByData(Qters::QrWidgets::QrListViewData *data, QWidget *itemWidget) override;
+    virtual void onDoubleClick(Qters::QrWidgets::QrListViewData *data) override;
 };
 
 #endif // LISTDELEGATE_H

@@ -51,6 +51,7 @@ Q_SIGNALS:
     void dataFiltered(bool isEmpty);
 
 public:
+    virtual void onDoubleClick(QrListViewData* data);
     virtual QWidget* createItemWidget() = 0;
     virtual void setItemWidgetByData(QrListViewData* data, QWidget* itemWidget) = 0;
 
@@ -79,6 +80,7 @@ public:
     int itemsSize() const;
     int rawSize() const;
     void setItemWidgetByIndex(int index, QWidget *itemWidget);
+    void itemDoubleClickByIndex(int index);
 };
 
 NS_QRWIDGETS_END

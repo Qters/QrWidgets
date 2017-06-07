@@ -37,6 +37,7 @@ protected:
     virtual void scrollContentsBy(int dx, int dy) override;
     virtual bool event(QEvent *) override;
     virtual void resizeEvent(QResizeEvent *) override;
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
 private Q_SLOTS:
     void dataChanged();

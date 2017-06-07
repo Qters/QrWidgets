@@ -62,6 +62,16 @@ void ListDelegate::setItemWidgetByData(QrListViewData *_data, QWidget *_itemWidg
     itemWidget->init(data);
 }
 
+void ListDelegate::onDoubleClick(QrListViewData *_data)
+{
+    ListCellData* data = static_cast<ListCellData*>(_data);
+    if(nullptr == data) {
+        qDebug() << "onDoubleClick's data is null";
+        return;
+    }
+    emit showInfo(*data);
+}
+
 ///////////////////////////////////////////////////////
 
 bool ListCellData::compare(const QrListViewData *_other) const

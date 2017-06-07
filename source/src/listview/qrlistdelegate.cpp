@@ -60,6 +60,11 @@ QrListVidewDelegate::QrListVidewDelegate()
 
 }
 
+void QrListVidewDelegate::onDoubleClick(QrListViewData *data)
+{
+    Q_UNUSED(data);
+}
+
 void QrListVidewDelegate::initMenu(QMenu* menu)
 {
     Q_UNUSED(menu);
@@ -90,6 +95,7 @@ void QrListVidewDelegate::clear()
     d->filterFuncQueue.clear();
 
     emit dataChanged();
+    emit dataEmpty(true);
 }
 
 void QrListVidewDelegate::addData(QrListViewData *data)
@@ -265,6 +271,24 @@ void QrListVidewDelegate::setItemWidgetByIndex(int index, QWidget *item)
             listview()->menu()->exec(item->mapToGlobal(pos));
         });
     }
+}
+
+void QrListVidewDelegate::itemDoubleClickByIndex(int index)
+{
+    Q_D(QrListVidewDelegate);
+
+    if(index > d->viewDataset.size()) {
+        qDebug() << "list size is smaller than " << index;
+        return;
+    }
+
+    QrListViewData* data = d->viewDataset[index];
+    if(nullptr == data) {
+        qDebug() << "cell's data is nullptr";
+        return;
+    }
+
+    onDoubleClick(data);
 }
 
 ///////////////////////////////////////////////////////

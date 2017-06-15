@@ -32,6 +32,11 @@ public:
     QrListVidewDelegate* delegate();
 
     QMenu* menu();
+    void updateOne(const QString &key);
+
+public:
+    virtual void onDoubleClick();
+    virtual void onClick();
 
 protected:
     virtual void scrollContentsBy(int dx, int dy) override;

@@ -25,8 +25,14 @@ public:
     QrListViewData();
 
 public:
-    virtual long key() const;
+    virtual QString key() const;
     virtual bool compare(const QrListViewData *other) const;
+
+public:
+    bool isOnClick() const;
+    void onClick(bool click);
+    bool isOnDoubleClick() const;
+    void onDoubleClick(bool click);
 };
 
 /*!
@@ -51,12 +57,14 @@ Q_SIGNALS:
     void dataFiltered(bool isEmpty);
 
 public:
-    virtual void onDoubleClick(QrListViewData* data);
     virtual QWidget* createItemWidget() = 0;
     virtual void setItemWidgetByData(QrListViewData* data, QWidget* itemWidget) = 0;
 
     virtual void initMenu(QMenu* menu);
     virtual bool hasMenu() const;
+
+    virtual void onDoubleClick(QWidget *item, QrListViewData* data, bool click);
+    virtual void onClick(QWidget *item, QrListViewData* data, bool click);
 
 public:
     void setListview(QrListView* listview);
@@ -68,10 +76,12 @@ public:
      */
     void addData(QrListViewData* data);
     void deleteData(QrListViewData* data);
-    QrListViewData* getData(long key);
-    bool isDataExist(long key) const;
+    QrListViewData* getData(const QString& key);
+    bool isDataExist(const QString& key) const;
 
     QrListViewData* menuData();
+    QrListViewData* doubleClickData();
+    QrListViewData* clickData();
 
     void sort();
     void filter(std::function<bool (QrListViewData*)> filterFunc);
@@ -79,8 +89,10 @@ public:
     void clear();
     int itemsSize() const;
     int rawSize() const;
-    void setItemWidgetByIndex(int index, QWidget *itemWidget);
-    void itemDoubleClickByIndex(int index);
+    QrListViewData* setItemWidgetByIndex(int index, QWidget *itemWidget);
+
+    void refreshClickData(int index);
+    void refreshDoubleClickData(int index);
 };
 
 NS_QRWIDGETS_END

@@ -60,16 +60,32 @@ void ListDelegate::setItemWidgetByData(QrListViewData *_data, QWidget *_itemWidg
     }
 
     itemWidget->init(data);
+    itemWidget->changeStyle(data->isOnClick() ? ListCell::Style::Down : ListCell::Style::Right);
 }
 
-void ListDelegate::onDoubleClick(QrListViewData *_data)
+void ListDelegate::onDoubleClick(QWidget *item, QrListViewData *_data, bool click)
 {
+    Q_UNUSED(item);
+    Q_UNUSED(click);
+
     ListCellData* data = static_cast<ListCellData*>(_data);
     if(nullptr == data) {
         qDebug() << "onDoubleClick's data is null";
         return;
     }
     emit showInfo(*data);
+}
+
+void ListDelegate::onClick(QWidget *item, QrListViewData *data, bool click)
+{
+    Q_UNUSED(data);
+
+    ListCell *itemWidget = static_cast<ListCell *>(item);
+    if(nullptr == itemWidget) {
+        return;
+    }
+
+    itemWidget->changeStyle(click ? ListCell::Style::Down : ListCell::Style::Right);
 }
 
 ///////////////////////////////////////////////////////

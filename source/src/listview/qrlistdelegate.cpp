@@ -12,6 +12,9 @@ NS_QRWIDGETS_BEGIN
 ///////////////////////////////////////////////////////
 
 class QrListViewDataPrivate {
+public:
+    bool isOnClick = false;
+    bool isOnDoubleClick = false;
 };
 
 ///////////////////////////////////////////////////////
@@ -29,14 +32,19 @@ public:
 
     QVector<QrListViewData*> rawDataset;
     QVector<QrListViewData*> viewDataset;
-    QMap<long, QrListViewData*> mapDataset;
+    QMap<QString, QrListViewData*> mapDataset;
 
 public:
     QrListViewData* menuData = nullptr;
+    QrListViewData* doubleClickData = nullptr;
+    QrListViewData* clickData = nullptr;
 
 public:
     QrListVidewDelegatePrivate(QrListVidewDelegate* q);
     virtual ~QrListVidewDelegatePrivate();
+
+public:
+    QrListViewData *getDataByIndex(int index);
 };
 
 QrListVidewDelegatePrivate::QrListVidewDelegatePrivate(QrListVidewDelegate *q)
@@ -46,6 +54,22 @@ QrListVidewDelegatePrivate::~QrListVidewDelegatePrivate()
 {
     Q_Q(QrListVidewDelegate);
     q->clear();
+}
+
+QrListViewData* QrListVidewDelegatePrivate::getDataByIndex(int index)
+{
+    if(index > viewDataset.size()) {
+        qDebug() << "list size is smaller than " << index;
+        return nullptr;
+    }
+
+    QrListViewData* data = viewDataset[index];
+    if(nullptr == data) {
+        qDebug() << "cell's data is nullptr";
+        return nullptr;
+    }
+
+    return data;
 }
 
 NS_QRWIDGETS_END
@@ -58,11 +82,6 @@ QrListVidewDelegate::QrListVidewDelegate()
     : d_ptr(new QrListVidewDelegatePrivate(this))
 {
 
-}
-
-void QrListVidewDelegate::onDoubleClick(QrListViewData *data)
-{
-    Q_UNUSED(data);
 }
 
 void QrListVidewDelegate::initMenu(QMenu* menu)
@@ -115,7 +134,7 @@ void QrListVidewDelegate::addData(QrListViewData *data)
     }
 }
 
-QrListViewData *QrListVidewDelegate::getData(long key)
+QrListViewData *QrListVidewDelegate::getData(const QString& key)
 {
     Q_D(QrListVidewDelegate);
     if(! d->mapDataset.contains(key)) {
@@ -136,6 +155,10 @@ void QrListVidewDelegate::deleteData(QrListViewData *data)
     d->rawDataset.removeOne(data);
     d->mapDataset.remove(data->key());
     d->viewDataset.removeOne(data);
+    d->filterFuncQueue.clear();
+
+    d->clickData = nullptr;
+    d->doubleClickData = nullptr;
 
     emit dataChanged();
 
@@ -144,7 +167,7 @@ void QrListVidewDelegate::deleteData(QrListViewData *data)
     }
 }
 
-bool QrListVidewDelegate::isDataExist(long key) const
+bool QrListVidewDelegate::isDataExist(const QString& key) const
 {
     Q_D(const QrListVidewDelegate);
     return d->mapDataset.contains(key);
@@ -156,9 +179,35 @@ QrListViewData *QrListVidewDelegate::menuData()
     return d->menuData;
 }
 
+QrListViewData *QrListVidewDelegate::doubleClickData()
+{
+    Q_D(QrListVidewDelegate);
+    return d->doubleClickData;
+}
+
+QrListViewData *QrListVidewDelegate::clickData()
+{
+    Q_D(QrListVidewDelegate);
+    return d->clickData;
+}
+
 bool QrListVidewDelegate::hasMenu() const
 {
     return false;
+}
+
+void QrListVidewDelegate::onDoubleClick(QWidget *item, QrListViewData* data, bool click)
+{
+    Q_UNUSED(item);
+    Q_UNUSED(data);
+    Q_UNUSED(click);
+}
+
+void QrListVidewDelegate::onClick(QWidget *item, QrListViewData* data, bool click)
+{
+    Q_UNUSED(item);
+    Q_UNUSED(data);
+    Q_UNUSED(click);
 }
 
 void QrListVidewDelegate::sort()
@@ -245,18 +294,13 @@ int QrListVidewDelegate::rawSize() const
     return d->rawDataset.size();
 }
 
-void QrListVidewDelegate::setItemWidgetByIndex(int index, QWidget *item)
+QrListViewData* QrListVidewDelegate::setItemWidgetByIndex(int index, QWidget *item)
 {
     Q_D(QrListVidewDelegate);
-    if(index > d->viewDataset.size()) {
-        qDebug() << "list size is smaller than " << index;
-        return;
-    }
-
-    QrListViewData* data = d->viewDataset[index];
+    QrListViewData* data = d->getDataByIndex(index);
     if(nullptr == data) {
         qDebug() << "cell's data is nullptr";
-        return;
+        return nullptr;
     }
 
     setItemWidgetByData(data, item);
@@ -271,24 +315,36 @@ void QrListVidewDelegate::setItemWidgetByIndex(int index, QWidget *item)
             listview()->menu()->exec(item->mapToGlobal(pos));
         });
     }
+
+    return data;
 }
 
-void QrListVidewDelegate::itemDoubleClickByIndex(int index)
+void QrListVidewDelegate::refreshDoubleClickData(int index)
 {
     Q_D(QrListVidewDelegate);
-
-    if(index > d->viewDataset.size()) {
-        qDebug() << "list size is smaller than " << index;
-        return;
+    if(nullptr != d->doubleClickData) {
+        d->doubleClickData->onDoubleClick(false);
     }
 
-    QrListViewData* data = d->viewDataset[index];
-    if(nullptr == data) {
-        qDebug() << "cell's data is nullptr";
-        return;
+    d->doubleClickData = d->getDataByIndex(index);
+
+    if(nullptr != d->doubleClickData) {
+        d->doubleClickData->onDoubleClick(true);
+    }
+}
+
+void QrListVidewDelegate::refreshClickData(int index)
+{
+    Q_D(QrListVidewDelegate);
+    if(nullptr != d->clickData) {
+        d->clickData->onClick(false);
     }
 
-    onDoubleClick(data);
+    d->clickData = d->getDataByIndex(index);
+
+    if(nullptr != d->clickData) {
+        d->clickData->onClick(true);
+    }
 }
 
 ///////////////////////////////////////////////////////
@@ -299,9 +355,9 @@ QrListViewData::QrListViewData()
 
 }
 
-long QrListViewData::key() const
+QString QrListViewData::key() const
 {
-    return -1;
+    return "";
 }
 
 bool QrListViewData::compare(const QrListViewData *other) const
@@ -309,3 +365,28 @@ bool QrListViewData::compare(const QrListViewData *other) const
     Q_UNUSED(other);
     return true;
 }
+
+bool QrListViewData::isOnClick() const
+{
+    Q_D(const QrListViewData);
+    return d->isOnClick;
+}
+
+void QrListViewData::onClick(bool click)
+{
+    Q_D(QrListViewData);
+    d->isOnClick = click;
+}
+
+bool QrListViewData::isOnDoubleClick() const
+{
+    Q_D(const QrListViewData);
+    return d->isOnDoubleClick;
+}
+
+void QrListViewData::onDoubleClick(bool click)
+{
+    Q_D(QrListViewData);
+    d->isOnDoubleClick = click;
+}
+

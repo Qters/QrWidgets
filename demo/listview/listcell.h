@@ -21,7 +21,14 @@ public:
     ~ListCell();
 
 public:
+    enum Style{
+        Right,
+        Down
+    };
+
+public:
     bool init(ListCellData *_data);
+    void changeStyle(Style style);
 
 private:
     Ui::ListCell *ui;

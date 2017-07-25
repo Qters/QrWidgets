@@ -143,7 +143,7 @@ void QrWaitingSpinnerWidgetPrivate::initialize()
 
     tipsLabel = new QLabel(q);
     tipsLabel->setStyleSheet("color:white;");
-    tipsLabel->setAlignment(Qt::AlignHCenter);
+    tipsLabel->setAlignment(Qt::AlignCenter);
     tipsLabel->hide();
 
     updateSize();
@@ -281,9 +281,10 @@ void QrWaitingSpinnerWidget::showEvent(QShowEvent *event)
 
     Q_D(QrWaitingSpinnerWidget);
     if(d->tipsLabel->isVisible()) {
-        QPoint promptLabelPos = QPoint(rect().center().x() - d->tipsLabel->width()/2 ,
+        QPoint promptLabelPos = QPoint(0,
                                        rect().center().y() + 2 * d->lineLength + d->tipsLabel->height());
         d->tipsLabel->move(promptLabelPos);
+        d->tipsLabel->setFixedWidth(rect().width());
     }
 }
 

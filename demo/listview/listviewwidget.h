@@ -5,14 +5,12 @@
 
 #include "qrglobal.h"
 
+#include "listview/qrsearchlistview.h"
+
 class ListDelegate;
 
-namespace Ui {
-class ListviewWidget;
-}
-
 class ListviewWidgetPrivate;
-class ListviewWidget : public QWidget
+class ListviewWidget : public Qters::QrWidgets::QrSearchListview
 {
     Q_OBJECT
 
@@ -21,9 +19,6 @@ class ListviewWidget : public QWidget
 public:
     explicit ListviewWidget(QWidget *parent = 0);
     ~ListviewWidget();
-
-private:
-    Ui::ListviewWidget *ui;
 };
 
 #endif // LISTVIEWWIDGET_H

@@ -91,6 +91,13 @@
        </property>
       </widget>
      </item>
+     <item row="4" column="1">
+      <widget class="QPushButton" name="tabListview">
+       <property name="text">
+        <string>tabListview</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>

@@ -20,7 +20,6 @@ public:
     // QrListVidewDelegate interface
 public:
     virtual QWidget *createItemWidget() override;
-    virtual void setItemWidgetByData(Qters::QrWidgets::QrListViewData *data, QWidget *itemWidget) override;
 
     // ListviewExDelegate interface
 public:

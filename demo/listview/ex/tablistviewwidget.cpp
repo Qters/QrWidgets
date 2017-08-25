@@ -1,4 +1,4 @@
-#include "tablistviewwidget.h"
+﻿#include "tablistviewwidget.h"
 #include "ui_tablistviewwidget.h"
 
 #include "listview/qrlistview.h"
@@ -37,6 +37,7 @@ TabListviewWidget::TabListviewWidget(QWidget *parent) :
     ui->groups->listview()->setDelegate(&(d->groupDelegate));
 
     QMap<QString, QString> groupNames;
+    groupNames["0"] = "zero";
     groupNames["1"] = "first";
     groupNames["2"] = "second";
     groupNames["3"] = "three";

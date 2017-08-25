@@ -30,20 +30,14 @@ QWidget *GroupDelegate::createItemWidget()
     return new GroupCell();
 }
 
-void GroupDelegate::setItemWidgetByData(QrListViewData *data, QWidget *itemWidget)
-{
-    Q_UNUSED(data);
-    Q_UNUSED(itemWidget);
-}
-
 int GroupDelegate::normalItemHeight() const
 {
-    return 0;
+    return 1;
 }
 
 int GroupDelegate::headItemHeight() const
 {
-    return 0;
+    return 1;
 }
 
 //////////////////////////////////////

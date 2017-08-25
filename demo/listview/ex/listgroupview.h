@@ -23,6 +23,10 @@ public:
 protected slots:
     virtual void dateChangeUpdate() override;
 
+    // QrListView interface
+protected :
+    virtual QWidget *createWidget() override;
+
 private:
     int dataChangeUpdaetImpl();
 };

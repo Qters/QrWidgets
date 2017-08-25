@@ -28,7 +28,7 @@ border-color: rgb(255, 0, 4);</string>
     <number>0</number>
    </property>
    <property name="leftMargin">
-    <number>0</number>
+    <number>2</number>
    </property>
    <property name="topMargin">
     <number>2</number>
@@ -60,7 +60,7 @@ border-color: rgb(255, 0, 4);</string>
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(85, 0, 255);</string>
+      <string notr="true">background-color: rgb(72, 149, 173);</string>
      </property>
      <property name="text">
       <string>group name</string>
@@ -87,7 +87,7 @@ border-color: rgb(255, 0, 4);</string>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="contents">
      <property name="leftMargin">
       <number>20</number>
      </property>

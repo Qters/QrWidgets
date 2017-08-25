@@ -5,6 +5,7 @@
 #include <QtWidgets/qscrollbar.h>
 
 #include "listview/qrlistview.h"
+#include "listgroupwidget.h"
 
 USING_NS_QRWIDGETS;
 
@@ -15,7 +16,7 @@ public:
     ListGroupDelegatePrivate(ListGroupDelegate* q);
 
 public:
-    QMap<QString, ListGroupData*> groupHeadDatas;
+    QMap<QString, QVector<ListGroupData*> > groupDatas;
 };
 
 ListGroupDelegatePrivate::ListGroupDelegatePrivate(ListGroupDelegate *q)
@@ -27,6 +28,19 @@ ListGroupDelegate::ListGroupDelegate()
       d_ptr(new ListGroupDelegatePrivate(this))
 {
 
+}
+
+void ListGroupDelegate::showGroupItems(const QString &groupHex, bool visible)
+{
+    Q_D(ListGroupDelegate);
+    if(! d->groupDatas.contains(groupHex)) {
+        qDebug() << "group delegate not contain this group";
+        return;
+    }
+
+    Q_FOREACH(ListGroupData* data, d->groupDatas[groupHex]) {
+        data->setVisible(visible);
+    }
 }
 
 void ListGroupDelegate::sortImpl(bool update/* = true*/)
@@ -65,7 +79,13 @@ void ListGroupDelegate::addData(QrListViewData *data)
     dataEx->calcGroupInfo();
 
     Q_D(ListGroupDelegate);
-    dataEx->setGroupHead(! d->groupHeadDatas.contains(dataEx->groupHex()));
+    dataEx->setGroupHead(! d->groupDatas.contains(dataEx->groupHex()));
+
+    if(d->groupDatas.contains(dataEx->groupHex())) {
+        d->groupDatas[dataEx->groupHex()].push_back(dataEx);
+    } else {
+        d->groupDatas[dataEx->groupHex()] = (QVector<ListGroupData*>() << dataEx);
+    }
 
     QrListVidewDelegate::addData(dataEx);
 }
@@ -80,7 +100,6 @@ int ListGroupDelegate::verScrollBarRangeMaxValue(int itemHeight)
 {
     Q_UNUSED(itemHeight);
 
-    Q_D(const ListGroupDelegate);
     int widgetHeightOfAllDatas = 0;
     QVector<QrListViewData*> viewDatas = viewDataset();
     for(int dataIdx=0; dataIdx<viewDatas.size(); ++dataIdx) {
@@ -91,6 +110,29 @@ int ListGroupDelegate::verScrollBarRangeMaxValue(int itemHeight)
         widgetHeightOfAllDatas += groupItemRenderHeight(dataEx);
     }
     return widgetHeightOfAllDatas - listview()->height();
+}
+
+void ListGroupDelegate::setItemWidgetByData(QrListViewData *_data, QWidget *_itemWidget)
+{
+    ListGroupWidget *itemWidget = static_cast<ListGroupWidget *>(_itemWidget);
+    if(nullptr == itemWidget) {
+        return;
+    }
+
+    ListGroupData *data = static_cast<ListGroupData *>(_data);
+    if(nullptr == data) {
+        return;
+    }
+
+    if(data->isGroupHead()) {
+        if(data->isVisible()) {
+            itemWidget->initHeadWidget(data);
+        } else {
+            itemWidget->initOnlyHeadWidget(data);
+        }
+    } else {
+        itemWidget->initNormalWidget(data);
+    }
 }
 
 int ListGroupDelegate::groupItemRenderHeight(QrListViewData *data) const
@@ -115,8 +157,9 @@ public:
     ListGroupDataPrivate(ListGroupData* q) : q_ptr(q) {}
 
 public:
-    bool isGroupHead = false;   //  是否是组头
-    QString groupHex;   //  组的哈希值
+    bool isVisible = true;
+    bool isGroupHead = false;
+    QString groupHex;
 };
 
 ListGroupData::ListGroupData()
@@ -124,6 +167,18 @@ ListGroupData::ListGroupData()
       d_ptr(new ListGroupDataPrivate(this))
 {
 
+}
+
+void ListGroupData::setVisible(bool visible)
+{
+    Q_D(ListGroupData);
+    d->isVisible = visible;
+}
+
+bool ListGroupData::isVisible() const
+{
+    Q_D(const ListGroupData);
+    return d->isVisible;
 }
 
 void ListGroupData::setGroupHead(bool isHead)

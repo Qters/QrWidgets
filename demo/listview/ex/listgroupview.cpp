@@ -5,6 +5,7 @@
 #include <QtCore/qqueue.h>
 
 #include "listgroupdelegate.h"
+#include "listgroupwidget.h"
 
 class ListGroupViewPrivate {
     QR_DECLARE_PUBLIC(ListGroupView)
@@ -51,6 +52,29 @@ void ListGroupView::dateChangeUpdate()
     }
 }
 
+QWidget *ListGroupView::createWidget()
+{
+    ListGroupWidget *widget = static_cast<ListGroupWidget*>(QrListView::createWidget());
+    if(nullptr == widget) {
+        qWarning("create nullptr widget");
+        return nullptr;
+    }
+    connect(widget, &ListGroupWidget::onGroupHeadClick, [this, widget](){
+        return; //  function is not finish.
+
+        ListGroupData *data = static_cast<ListGroupData *>(getDataOfWidget(widget));
+        if(nullptr == data) {
+            qDebug() << "group head's data is nullptr.";
+            return;
+        }
+
+        delegate()->showGroupItems(data->groupHex(), ! data->isVisible());
+
+        emit delegate()->dataChanged();
+    });
+    return widget;
+}
+
 int ListGroupView::dataChangeUpdaetImpl()
 {
     Q_D(ListGroupView);
@@ -87,20 +111,36 @@ int ListGroupView::dataChangeUpdaetImpl()
     }
 
     clearDataWidget();
-    Q_FOREACH(QWidget* itemWidget, itemWidgets()) {
-        itemWidget->move(0, itemWidgetOffset);
-        setWidgetItemIndex(itemWidget, currentItemIndex);
+    Q_FOREACH(QWidget* _itemWidget, itemWidgets()) {
+        ListGroupWidget *itemWidget = static_cast<ListGroupWidget*>(_itemWidget);
+        if(nullptr == itemWidget) {
+            continue;
+        }
 
-        QrListViewData* delegateData = nullptr;
-        if(currentItemIndex < delegate()->itemsSize()) {
-            delegateData = delegate()->setItemWidgetByIndex(currentItemIndex, itemWidget);
-            if(nullptr != delegateData) {
-                setDataWidget(delegateData, itemWidget);
+        itemWidget->move(0, itemWidgetOffset);
+
+        ListGroupData *delegateData = nullptr;
+        for(; currentItemIndex<delegate()->itemsSize(); ++currentItemIndex) {
+            delegateData = static_cast<ListGroupData*>(delegate()->getDataByIndex(currentItemIndex));
+
+            if(nullptr == delegateData) {
+                continue;
             }
+
+            if(! delegateData->isVisible()
+                    && ! delegateData->isGroupHead()) {
+                continue;
+            }
+
+            delegate()->setItemWidgetByIndex(currentItemIndex, itemWidget);
+            setDataWidget(delegateData, itemWidget);
             itemWidget->show();
-        } else {
+            break;
+        }
+        if(nullptr == delegateData) {
             itemWidget->hide();
         }
+        setWidgetItemIndex(itemWidget, currentItemIndex);
 
         if(nullptr != delegateData && delegateData->isGroupData()) {
             itemWidgetOffset += delegate()->groupItemRenderHeight(delegateData);

@@ -19,6 +19,9 @@ public:
     ListGroupDelegate();
 
 public:
+    void showGroupItems(const QString& groupHex, bool visible);
+
+public:
     virtual int groupItemRenderHeight(Qters::QrWidgets::QrListViewData *data) const;
 
     // QrListVidewDelegate interface
@@ -27,6 +30,7 @@ public:
     virtual void addData(Qters::QrWidgets::QrListViewData *data) override;
     virtual int itemCountToShow(int listviewHeight, int itemHeight) override;
     virtual int verScrollBarRangeMaxValue(int itemHeight) override;
+    virtual void setItemWidgetByData(Qters::QrWidgets::QrListViewData *data, QWidget *itemWidget) override;
 
 public:
     virtual int normalItemHeight() const = 0;
@@ -46,6 +50,9 @@ public:
     ListGroupData();
 
 public:
+    void setVisible(bool visible);
+    bool isVisible() const;
+
     void setGroupHead(bool isHead);
     bool isGroupHead() const;
 

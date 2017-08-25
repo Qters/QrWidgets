@@ -52,21 +52,6 @@ QWidget *FriendDelegate::createItemWidget()
     return new FriendCell();
 }
 
-void FriendDelegate::setItemWidgetByData(QrListViewData *_data, QWidget *_itemWidget)
-{
-    FriendCell *itemWidget = static_cast<FriendCell *>(_itemWidget);
-    if(nullptr == itemWidget) {
-        return;
-    }
-
-    FriendDelegateData *data = static_cast<FriendDelegateData *>(_data);
-    if(nullptr == data) {
-        return;
-    }
-
-    itemWidget->init(data);
-}
-
 int FriendDelegate::normalItemHeight() const
 {
     Q_D(const FriendDelegate);

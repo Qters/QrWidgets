@@ -5,6 +5,7 @@
 
 #include "qrglobal.h"
 
+class ListGroupData;
 class ListGroupWidgetPrivate;
 class ListGroupWidget : public QWidget
 {
@@ -20,8 +21,12 @@ Q_SIGNALS:
     void onGroupHeadClick();
 
 public:
-    virtual int normalItemHeight() const = 0;
+    virtual bool initOnlyHeadWidget(ListGroupData *data) = 0;
+    virtual bool initHeadWidget(ListGroupData *data) = 0;
+    virtual bool initNormalWidget(ListGroupData *data) = 0;
+
     virtual int headItemHeight() const = 0;
+    virtual int normalItemHeight() const = 0;
 };
 
 #endif // LISTGROUPWIDGET_H

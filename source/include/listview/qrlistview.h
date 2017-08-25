@@ -1,4 +1,4 @@
-#ifndef QRLISTVIEW_H
+﻿#ifndef QRLISTVIEW_H
 #define QRLISTVIEW_H
 
 #include <QtWidgets/qwidget.h>
@@ -47,14 +47,19 @@ protected:
 
 protected:
     virtual void dateChangeUpdate();
+    virtual QWidget *createWidget();
 
 protected:
     bool isScrollUp() const;
     void clearDataWidget();
     QQueue<QWidget*> itemWidgets();
+
     void setWidgetItemIndex(QWidget *itemWidget, int itemIndex);
     int getWidgetItemIndex(QWidget *itemWidget) const;
+
     void setDataWidget(QrListViewData *delegateData, QWidget *itemWidget);
+
+    QrListViewData* getDataOfWidget(QWidget *itemWidget) const;
 
 private Q_SLOTS:
     virtual void dataChanged();

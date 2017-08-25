@@ -1,4 +1,4 @@
-#include "listview/qrlistview.h"
+﻿#include "listview/qrlistview.h"
 
 #include <QtCore/qdebug.h>
 #include <QtWidgets/qscrollbar.h>
@@ -19,7 +19,8 @@ public:
     QMenu *menu = nullptr;
 
     QMap<QWidget*, int> widgetItemIndex;
-    QMap<QrListViewData*, QWidget*> dataWidget;
+    QMap<QrListViewData*, QWidget*> dataWidgets;
+    QMap<QWidget*, QrListViewData*> widgetDatas;
     QQueue<QWidget*> itemWidgets;
     QrListVidewDelegate *delegate = nullptr;
 
@@ -31,25 +32,12 @@ public:
 
 public:
     QrListViewPrivate(QrListView *q);
-    QWidget *createWidget();
 };
 
 QrListViewPrivate::QrListViewPrivate(QrListView *q)
     : q_ptr(q)
 {
 
-}
-
-QWidget* QrListViewPrivate::createWidget()
-{
-    Q_Q(QrListView);
-
-    QWidget *itemWidget = delegate->createItemWidget();
-    itemWidget->setParent(q);
-    itemWidget->installEventFilter(q);
-    itemWidgets.push_back(itemWidget);
-
-    return itemWidget;
 }
 
 void QrListView::updateOne(const QString &key)
@@ -61,11 +49,11 @@ void QrListView::updateOne(const QString &key)
     Q_D(QrListView);
     auto delegateData = delegate()->getData(key);
     if(nullptr == delegateData ||
-            ! d->dataWidget.contains(delegateData)) {
+            ! d->dataWidgets.contains(delegateData)) {
         return;
     }
 
-    QWidget* widget = d->dataWidget[delegateData];
+    QWidget* widget = d->dataWidgets[delegateData];
     delegate()->setItemWidgetByData(delegateData, widget);
     widget->update();
 }
@@ -96,7 +84,8 @@ QrListView::QrListView(QWidget *parent)
 QrListView::~QrListView()
 {
     Q_D(QrListView);
-    d->dataWidget.clear();
+    d->dataWidgets.clear();
+    d->widgetDatas.clear();
     d->itemWidgets.clear();
     d->widgetItemIndex.clear();
     d->delegate = nullptr;
@@ -152,7 +141,7 @@ void QrListView::resizeEvent(QResizeEvent * event)
     }
 
     if(d->itemWidgets.empty()) {
-        d->createWidget();
+        createWidget();
     }
 
     int listviewHeight = event->size().height();
@@ -161,7 +150,7 @@ void QrListView::resizeEvent(QResizeEvent * event)
     int itemCount = d->delegate->itemCountToShow(listviewHeight, d->itemHeight);
 
     for(;d->itemWidgets.size() < itemCount;){
-        d->createWidget();
+        createWidget();
     }
 
     Q_FOREACH(QWidget* itemWidget, d->itemWidgets) {
@@ -194,8 +183,8 @@ bool QrListView::eventFilter(QObject *watched, QEvent *event)
     case QEvent::MouseButtonDblClick:
         preClickData = d->delegate->doubleClickData();
         d->delegate->refreshDoubleClickData(d->widgetItemIndex[widget]);
-        if(nullptr != d->dataWidget[preClickData]) {
-            d->delegate->onDoubleClick(d->dataWidget[preClickData], preClickData, false);
+        if(nullptr != d->dataWidgets[preClickData]) {
+            d->delegate->onDoubleClick(d->dataWidgets[preClickData], preClickData, false);
         }
         d->delegate->onDoubleClick(widget, d->delegate->doubleClickData(), true);
         onDoubleClick();
@@ -203,8 +192,8 @@ bool QrListView::eventFilter(QObject *watched, QEvent *event)
     case QEvent::MouseButtonRelease:
         preClickData = d->delegate->clickData();
         d->delegate->refreshClickData(d->widgetItemIndex[widget]);
-        if(nullptr != d->dataWidget[preClickData]) {
-            d->delegate->onClick(d->dataWidget[preClickData], preClickData, false);
+        if(nullptr != d->dataWidgets[preClickData]) {
+            d->delegate->onClick(d->dataWidgets[preClickData], preClickData, false);
         }
         d->delegate->onClick(widget, d->delegate->clickData(), true);
         onClick();
@@ -254,8 +243,7 @@ void QrListView::dataChanged()
     }
 
     if(d->oldDatasetSize != d->delegate->itemsSize()) {
-        int r = d->delegate->verScrollBarRangeMaxValue(d->itemHeight);
-        verticalScrollBar()->setRange(0, r);
+        verticalScrollBar()->setRange(0, d->delegate->verScrollBarRangeMaxValue(d->itemHeight));
         d->oldDatasetSize = d->delegate->itemsSize();
     }
 
@@ -269,7 +257,8 @@ void QrListView::dataChanged()
 void QrListView::clearDataWidget()
 {
     Q_D(QrListView);
-    d->dataWidget.clear();
+    d->dataWidgets.clear();
+    d->widgetDatas.clear();
 }
 
 QQueue<QWidget *> QrListView::itemWidgets()
@@ -293,7 +282,14 @@ int QrListView::getWidgetItemIndex(QWidget* itemWidget) const
 void QrListView::setDataWidget(QrListViewData* delegateData, QWidget* itemWidget)
 {
     Q_D(QrListView);
-    d->dataWidget[delegateData] = itemWidget;
+    d->dataWidgets[delegateData] = itemWidget;
+    d->widgetDatas[itemWidget] = delegateData;
+}
+
+QrListViewData *QrListView::getDataOfWidget(QWidget *itemWidget) const
+{
+    Q_D(const QrListView);
+    return d->widgetDatas[itemWidget];
 }
 
 void QrListView::dateChangeUpdate()
@@ -324,6 +320,18 @@ void QrListView::dateChangeUpdate()
 
         currentItemIndex += 1;
     }
+}
+
+QWidget* QrListView::createWidget()
+{
+    Q_D(QrListView);
+
+    QWidget *itemWidget = d->delegate->createItemWidget();
+    itemWidget->setParent(this);
+    itemWidget->installEventFilter(this);
+    d->itemWidgets.push_back(itemWidget);
+
+    return itemWidget;
 }
 
 bool QrListView::isScrollUp() const

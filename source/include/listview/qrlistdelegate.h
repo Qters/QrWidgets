@@ -12,7 +12,6 @@
 NS_QRWIDGETS_BEGIN
 
 class QrListView;
-
 /*!
  * \brief Listview's cell data
  */
@@ -27,6 +26,10 @@ public:
 public:
     virtual QString key() const;
     virtual bool compare(const QrListViewData *other) const;
+    virtual QString toString() const;
+
+public:
+    virtual bool isGroupData() const;
 
 public:
     bool isOnClick() const;
@@ -66,6 +69,12 @@ public:
     virtual void onDoubleClick(QWidget *item, QrListViewData* data, bool click);
     virtual void onClick(QWidget *item, QrListViewData* data, bool click);
 
+    virtual void sortImpl(bool update = true);
+    virtual void addData(QrListViewData* data);
+
+    virtual int verScrollBarRangeMaxValue(int itemHeight);
+    virtual int itemCountToShow(int listviewHeight, int itemHeight);
+
 public:
     void setListview(QrListView* listview);
     QrListView* listview();
@@ -74,9 +83,9 @@ public:
      * \brief should put data after YOU create(NEW), leave DELETE data to DELEGATE:
      * \param data
      */
-    void addData(QrListViewData* data);
     void deleteData(QrListViewData* data);
     QrListViewData* getData(const QString& key);
+    QrListViewData *getDataByIndex(int index);
     bool isDataExist(const QString& key) const;
 
     QrListViewData* menuData();
@@ -93,6 +102,9 @@ public:
 
     void refreshClickData(int index);
     void refreshDoubleClickData(int index);
+
+    QVector<QrListViewData*> rawDataset();
+    QVector<QrListViewData*> viewDataset();
 };
 
 NS_QRWIDGETS_END

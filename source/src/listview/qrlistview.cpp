@@ -5,7 +5,6 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qqueue.h>
 #include <QtCore/qpoint.h>
-#include <QtWidgets/qlayout.h>
 
 #include "listview/qrlistdelegate.h"
 
@@ -27,6 +26,8 @@ public:
     int itemHeight = 1;
     int itemsHeight = 1;
     int oldDatasetSize = 0;
+
+    bool isScrollUp = false;
 
 public:
     QrListViewPrivate(QrListView *q);
@@ -105,6 +106,9 @@ void QrListView::scrollContentsBy(int dx, int dy)
 {
     Q_UNUSED(dx);
     Q_UNUSED(dy);
+
+    Q_D(QrListView);
+    d->isScrollUp = (dy > 0);
     dataChanged();
 }
 
@@ -154,7 +158,7 @@ void QrListView::resizeEvent(QResizeEvent * event)
     int listviewHeight = event->size().height();
     d->itemHeight = d->itemWidgets.front()->size().height();
     Q_ASSERT(0 != d->itemHeight);
-    int itemCount = listviewHeight/d->itemHeight + 2;
+    int itemCount = d->delegate->itemCountToShow(listviewHeight, d->itemHeight);
 
     for(;d->itemWidgets.size() < itemCount;){
         d->createWidget();
@@ -245,28 +249,71 @@ void QrListView::dataChanged()
 {
     Q_D(QrListView);
 
-    if(nullptr == d->delegate) {
+    if(nullptr == d->delegate || d->delegate->rawDataset().isEmpty()) {
         return;
     }
 
     if(d->oldDatasetSize != d->delegate->itemsSize()) {
-        verticalScrollBar()->setRange(0, d->delegate->itemsSize() * d->itemHeight - size().height());
+        int r = d->delegate->verScrollBarRangeMaxValue(d->itemHeight);
+        verticalScrollBar()->setRange(0, r);
         d->oldDatasetSize = d->delegate->itemsSize();
     }
+
+    if(itemWidgets().isEmpty()) {
+        return;
+    }
+
+    dateChangeUpdate();
+}
+
+void QrListView::clearDataWidget()
+{
+    Q_D(QrListView);
+    d->dataWidget.clear();
+}
+
+QQueue<QWidget *> QrListView::itemWidgets()
+{
+    Q_D(QrListView);
+    return d->itemWidgets;
+}
+
+void QrListView::setWidgetItemIndex(QWidget* itemWidget, int itemIndex)
+{
+    Q_D(QrListView);
+    d->widgetItemIndex[itemWidget] = itemIndex;
+}
+
+int QrListView::getWidgetItemIndex(QWidget* itemWidget) const
+{
+    Q_D(const QrListView);
+    return d->widgetItemIndex[itemWidget];
+}
+
+void QrListView::setDataWidget(QrListViewData* delegateData, QWidget* itemWidget)
+{
+    Q_D(QrListView);
+    d->dataWidget[delegateData] = itemWidget;
+}
+
+void QrListView::dateChangeUpdate()
+{
+    Q_D(QrListView);
 
     int vscorllbarValue = verticalScrollBar()->value();
     int currentItemIndex = vscorllbarValue / d->itemHeight;
     int itemWidgetOffset =(vscorllbarValue % d->itemHeight) * -1;
 
-    d->dataWidget.clear();
-    Q_FOREACH(QWidget* itemWidget, d->itemWidgets) {
+    clearDataWidget();
+    Q_FOREACH(QWidget* itemWidget, itemWidgets()) {
         itemWidget->move(0, itemWidgetOffset);
-        d->widgetItemIndex[itemWidget] = currentItemIndex;
+        setWidgetItemIndex(itemWidget, currentItemIndex);
 
+        QrListViewData* delegateData = nullptr;
         if(currentItemIndex < d->delegate->itemsSize()) {
-            auto delegateData = d->delegate->setItemWidgetByIndex(currentItemIndex, itemWidget);
+            delegateData = d->delegate->setItemWidgetByIndex(currentItemIndex, itemWidget);
             if(nullptr != delegateData) {
-                d->dataWidget[delegateData] = itemWidget;
+                setDataWidget(delegateData, itemWidget);
             }
             itemWidget->show();
         } else {
@@ -274,6 +321,13 @@ void QrListView::dataChanged()
         }
 
         itemWidgetOffset += d->itemHeight;
+
         currentItemIndex += 1;
     }
+}
+
+bool QrListView::isScrollUp() const
+{
+    Q_D(const QrListView);
+    return d->isScrollUp;
 }

@@ -16,6 +16,7 @@ class QrListVidewDelegate;
 /*!
  * \brief Listview
  */
+class QrListViewData;
 class QrListViewPrivate;
 class QRWIDGETSSHARED_EXPORT QrListView : public QAbstractScrollArea
 {
@@ -44,8 +45,19 @@ protected:
     virtual void resizeEvent(QResizeEvent *) override;
     virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
+protected:
+    virtual void dateChangeUpdate();
+
+protected:
+    bool isScrollUp() const;
+    void clearDataWidget();
+    QQueue<QWidget*> itemWidgets();
+    void setWidgetItemIndex(QWidget *itemWidget, int itemIndex);
+    int getWidgetItemIndex(QWidget *itemWidget) const;
+    void setDataWidget(QrListViewData *delegateData, QWidget *itemWidget);
+
 private Q_SLOTS:
-    void dataChanged();
+    virtual void dataChanged();
 };
 
 NS_QRWIDGETS_END

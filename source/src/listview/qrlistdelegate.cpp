@@ -42,9 +42,6 @@ public:
 public:
     QrListVidewDelegatePrivate(QrListVidewDelegate* q);
     virtual ~QrListVidewDelegatePrivate();
-
-public:
-    QrListViewData *getDataByIndex(int index);
 };
 
 QrListVidewDelegatePrivate::QrListVidewDelegatePrivate(QrListVidewDelegate *q)
@@ -54,22 +51,6 @@ QrListVidewDelegatePrivate::~QrListVidewDelegatePrivate()
 {
     Q_Q(QrListVidewDelegate);
     q->clear();
-}
-
-QrListViewData* QrListVidewDelegatePrivate::getDataByIndex(int index)
-{
-    if(index > viewDataset.size()) {
-        qDebug() << "list size is smaller than " << index;
-        return nullptr;
-    }
-
-    QrListViewData* data = viewDataset[index];
-    if(nullptr == data) {
-        qDebug() << "cell's data is nullptr";
-        return nullptr;
-    }
-
-    return data;
 }
 
 NS_QRWIDGETS_END
@@ -134,6 +115,16 @@ void QrListVidewDelegate::addData(QrListViewData *data)
     }
 }
 
+int QrListVidewDelegate::verScrollBarRangeMaxValue(int itemHeight)
+{
+    return itemsSize() * itemHeight - listview()->size().height();
+}
+
+int QrListVidewDelegate::itemCountToShow(int listviewHeight, int itemHeight)
+{
+    return (listviewHeight/itemHeight) + 2;
+}
+
 QrListViewData *QrListVidewDelegate::getData(const QString& key)
 {
     Q_D(QrListVidewDelegate);
@@ -143,6 +134,23 @@ QrListViewData *QrListVidewDelegate::getData(const QString& key)
     }
 
     return d->mapDataset[key];
+}
+
+QrListViewData *QrListVidewDelegate::getDataByIndex(int index)
+{
+    Q_D(QrListVidewDelegate);
+    if(index > d->viewDataset.size()) {
+        qDebug() << "list size is smaller than " << index;
+        return nullptr;
+    }
+
+    QrListViewData* data = d->viewDataset[index];
+    if(nullptr == data) {
+        qDebug() << "cell's data is nullptr";
+        return nullptr;
+    }
+
+    return data;
 }
 
 void QrListVidewDelegate::deleteData(QrListViewData *data)
@@ -210,6 +218,35 @@ void QrListVidewDelegate::onClick(QWidget *item, QrListViewData* data, bool clic
     Q_UNUSED(click);
 }
 
+void QrListVidewDelegate::sortImpl(bool update/* = true*/)
+{
+    Q_D(QrListVidewDelegate);
+    qDebug() << "sort!";
+
+    qSort(d->rawDataset.begin(), d->rawDataset.end(),
+          [](const QrListViewData* left, const QrListViewData* right) {
+        return left->compare(right);
+    });
+
+    if(d->rawDataset.size() != d->viewDataset.size()) {
+        qSort(d->viewDataset.begin(), d->viewDataset.end(),
+              [](const QrListViewData* left, const QrListViewData* right) {
+            return left->compare(right);
+        });
+    } else {
+        d->viewDataset.clear();
+        d->viewDataset = d->rawDataset;
+    }
+
+    if(update) {
+        emit dataChanged();
+    }
+
+    d->watingSort = false;
+
+    qDebug() << "sort finish!";
+}
+
 void QrListVidewDelegate::sort()
 {
     Q_D(QrListVidewDelegate);
@@ -219,30 +256,7 @@ void QrListVidewDelegate::sort()
     }
 
     d->watingSort = true;
-    QTimer::singleShot(500, this, [this](){
-        Q_D(QrListVidewDelegate);
-        qDebug() << "sort!";
-
-        qSort(d->rawDataset.begin(), d->rawDataset.end(),
-              [](const QrListViewData* left, const QrListViewData* right) {
-            return left->compare(right);
-        });
-
-        if(d->rawDataset.size() != d->viewDataset.size()) {
-            qSort(d->viewDataset.begin(), d->viewDataset.end(),
-                  [](const QrListViewData* left, const QrListViewData* right) {
-                return left->compare(right);
-            });
-        } else {
-            d->viewDataset.clear();
-            d->viewDataset = d->rawDataset;
-        }
-
-        emit dataChanged();
-
-        d->watingSort = false;
-        qDebug() << "sort finish!";
-    });
+    QTimer::singleShot(500, this, [this](){ sortImpl();});
 }
 
 void QrListVidewDelegate::filter(std::function<bool (QrListViewData*)> filterFunc)
@@ -296,8 +310,7 @@ int QrListVidewDelegate::rawSize() const
 
 QrListViewData* QrListVidewDelegate::setItemWidgetByIndex(int index, QWidget *item)
 {
-    Q_D(QrListVidewDelegate);
-    QrListViewData* data = d->getDataByIndex(index);
+    QrListViewData* data = getDataByIndex(index);
     if(nullptr == data) {
         qDebug() << "cell's data is nullptr";
         return nullptr;
@@ -326,11 +339,23 @@ void QrListVidewDelegate::refreshDoubleClickData(int index)
         d->doubleClickData->onDoubleClick(false);
     }
 
-    d->doubleClickData = d->getDataByIndex(index);
+    d->doubleClickData = getDataByIndex(index);
 
     if(nullptr != d->doubleClickData) {
         d->doubleClickData->onDoubleClick(true);
     }
+}
+
+QVector<QrListViewData *> QrListVidewDelegate::rawDataset()
+{
+    Q_D(QrListVidewDelegate);
+    return d->rawDataset;
+}
+
+QVector<QrListViewData *> QrListVidewDelegate::viewDataset()
+{
+    Q_D(QrListVidewDelegate);
+    return d->viewDataset;
 }
 
 void QrListVidewDelegate::refreshClickData(int index)
@@ -340,7 +365,7 @@ void QrListVidewDelegate::refreshClickData(int index)
         d->clickData->onClick(false);
     }
 
-    d->clickData = d->getDataByIndex(index);
+    d->clickData = getDataByIndex(index);
 
     if(nullptr != d->clickData) {
         d->clickData->onClick(true);
@@ -366,6 +391,16 @@ bool QrListViewData::compare(const QrListViewData *other) const
     return true;
 }
 
+QString QrListViewData::toString() const
+{
+    return "";
+}
+
+bool QrListViewData::isGroupData() const
+{
+    return false;
+}
+
 bool QrListViewData::isOnClick() const
 {
     Q_D(const QrListViewData);
@@ -389,4 +424,3 @@ void QrListViewData::onDoubleClick(bool click)
     Q_D(QrListViewData);
     d->isOnDoubleClick = click;
 }
-

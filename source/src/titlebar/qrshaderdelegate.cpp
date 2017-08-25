@@ -8,6 +8,7 @@
 
 class QrShaderDelegatePrivate{
 public:
+    bool needPaint = true;
     QPoint startPoint;
     QColor boxColor = Qt::black;
 };
@@ -53,6 +54,18 @@ QColor QrShaderDelegate::boxColor() const
     return d->boxColor;
 }
 
+void QrShaderDelegate::setNeedPaint(bool needpaint)
+{
+    Q_D(QrShaderDelegate);
+    d->needPaint = needpaint;
+}
+
+bool QrShaderDelegate::needPaint() const
+{
+    Q_D(const QrShaderDelegate);
+    return d->needPaint;
+}
+
 void QrShaderDelegate::mousePressEvent(QMouseEvent *e)
 {
     QWidget::mousePressEvent(e);
@@ -81,6 +94,10 @@ void QrShaderDelegate::mouseReleaseEvent(QMouseEvent *e)
 void QrShaderDelegate::paintEvent(QPaintEvent *)
 {
     Q_D(QrShaderDelegate);
+
+    if(! d->needPaint) {
+        return;
+    }
 
     QRect region = rect();
 

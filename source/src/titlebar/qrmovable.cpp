@@ -1,5 +1,6 @@
 #include "titlebar/qrmovable.h"
 
+#include <QtCore/qdebug.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qpainter.h>
 
@@ -16,31 +17,18 @@ public:
     bool isMovable = true;
     bool clickOnButton = false;
 
-public:
-    QrMovablePrivate(QrMovable* q);
+    bool isNeedBoxBeforeChanging = false;
+    bool isChangingParentRect = false;
+    bool moveByRigthBottomCorner = true;
+    QPoint parentPointMoveBefore; //
 
 public:
-    void init();
+    QrMovablePrivate(QrMovable* q);
 };
 
 QrMovablePrivate::QrMovablePrivate(QrMovable *q)
     : q_ptr(q)
 {
-}
-
-void QrMovablePrivate::init()
-{
-    Q_Q(QrMovable);
-
-    shaderDelegate = new QrShaderDelegate(q);
-    q->connect(shaderDelegate, &QrShaderDelegate::moveEndSend, [this](QPoint point){
-        if (! isMovable) {
-            return;
-        }
-
-        Q_Q(QrMovable);
-        q->parentWidget()->move(point);
-    });
 }
 
 
@@ -57,14 +45,32 @@ QrMovable::QrMovable(QWidget *parent)
     Q_ASSERT(nullptr != parent);
 
     parent->installEventFilter(this);
+    parent->setMouseTracking(true);
+
+    init();
 
     Q_D(QrMovable);
-    d->init();
+    qDebug() << "moveable:" << d->shaderDelegate ;
 }
 
 QrMovable::~QrMovable()
 {
 
+}
+
+void QrMovable::init()
+{
+    Q_D(QrMovable);
+
+    d->shaderDelegate = new QrShaderDelegate(this);
+    connect(d->shaderDelegate, &QrShaderDelegate::moveEndSend, [this](QPoint point){
+        Q_D(const QrMovable);
+        if (! d->isMovable) {
+            return;
+        }
+
+        parentWidget()->move(point);
+    });
 }
 
 void QrMovable::setBoxColor(const QColor &boxColor)
@@ -76,7 +82,14 @@ void QrMovable::setBoxColor(const QColor &boxColor)
 void QrMovable::setBoxEffect(bool visible)
 {
     Q_D(QrMovable);
-    d->shaderDelegate->setVisible(visible);
+    d->shaderDelegate->setNeedPaint(visible);
+    qDebug() << "QrMovable::setBoxEffect " << visible;
+}
+
+void QrMovable::moveByRigthBottomCorner(bool move)
+{
+    Q_D(QrMovable);
+    d->moveByRigthBottomCorner = move;
 }
 
 void QrMovable::donotMove(QPushButton *button)
@@ -89,16 +102,71 @@ void QrMovable::donotMove(QPushButton *button)
 
 bool QrMovable::eventFilter(QObject *watched, QEvent *event)
 {
-    if(watched == parent() && event->type() == QEvent::Paint) {
-        Q_D(QrMovable);
-        QRect region = parentWidget()->rect();
+    auto isMouseInRightBottomOfParent = [this, event]() {
+        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+        if(nullptr == mouseEvent) {
+            return false;
+        }
+        QPoint parentRightBottomPos(parentWidget()->rect().width(),
+                                    parentWidget()->rect().height());
 
-        QPainter painter(parentWidget());
-        QPen pen;
-        pen.setColor(d->shaderDelegate->boxColor());
-        pen.setWidth(2);
-        painter.setPen(pen);
-        painter.drawRect(region.x(), region.y(), region.width(), region.height());
+        int halfWidth = 15;
+        QRect pointRect(parentRightBottomPos + QPoint(-halfWidth, -halfWidth),
+                        parentRightBottomPos + QPoint(halfWidth, halfWidth));
+
+        return pointRect.contains(mouseEvent->pos());
+    };
+
+    if(watched == parent()) {
+        Q_D(QrMovable);
+        switch(event->type()) {
+        case QEvent::Paint:
+            if(nullptr != d->shaderDelegate) {
+                QRect region = parentWidget()->rect();
+
+                QPainter painter(parentWidget());
+                QPen pen;
+                pen.setColor(d->shaderDelegate->boxColor());
+                pen.setWidth(2);
+                painter.setPen(pen);
+                painter.drawRect(region.x(), region.y(), region.width(), region.height());
+            }
+            break;
+        case QEvent::MouseMove:
+            if (isMouseInRightBottomOfParent() && d->moveByRigthBottomCorner) {
+                parentWidget()->setCursor(QCursor(Qt::SizeFDiagCursor));
+                if(d->isChangingParentRect) {
+                    QPoint offset = static_cast<QMouseEvent*>(event)->pos() - d->parentPointMoveBefore;
+                    parentWidget()->setGeometry(parentWidget()->pos().x(), parentWidget()->pos().y(),
+                                                parentWidget()->rect().width() + offset.x(),
+                                                parentWidget()->rect().height() + offset.y());
+                    parentWidget()->update();
+                    d->parentPointMoveBefore = static_cast<QMouseEvent*>(event)->pos();
+                } else {
+                    parentWidget()->setCursor(QCursor(Qt::ArrowCursor));
+                }
+            }
+            break;
+        case QEvent::MouseButtonPress:
+            if (isMouseInRightBottomOfParent() && d->moveByRigthBottomCorner) {
+                parentWidget()->setCursor(QCursor(Qt::SizeFDiagCursor));
+
+                d->isNeedBoxBeforeChanging = d->shaderDelegate->needPaint();
+                setBoxEffect(false);
+
+                d->isChangingParentRect = true;
+                d->parentPointMoveBefore = static_cast<QMouseEvent*>(event)->pos();
+            }
+            break;
+        case QEvent::MouseButtonRelease:
+            if(d->isChangingParentRect && d->moveByRigthBottomCorner) {
+                parentWidget()->setCursor(QCursor(Qt::ArrowCursor));
+                d->isChangingParentRect = false;
+
+                setBoxEffect(d->isNeedBoxBeforeChanging);
+            }
+            break;
+        }
     }
 
     return QWidget::eventFilter(watched, event);
@@ -131,6 +199,12 @@ void QrMovable::mouseMoveEvent(QMouseEvent *e)
     }
 
     QWidget::mouseMoveEvent(e);
+}
+
+bool QrMovable::isChangingParentRect() const
+{
+    Q_D(const QrMovable);
+    return d->isChangingParentRect;
 }
 
 void QrMovable::mouseReleaseEvent(QMouseEvent *e)

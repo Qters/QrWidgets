@@ -22,11 +22,14 @@ public:
     ~QrMovable();
 
 public:
+    void init();
+
     void donotMove(QPushButton *button);
     void setBoxColor(const QColor& boxColor);
 
 public:
     void setBoxEffect(bool visible);
+    void moveByRigthBottomCorner(bool move);
 
     // QObject interface
 public:
@@ -37,6 +40,9 @@ protected:
     virtual void mousePressEvent(QMouseEvent *event) override;
     virtual void mouseReleaseEvent(QMouseEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent *event) override;
+
+protected:
+    bool isChangingParentRect() const;
 };
 
 NS_QRWIDGETS_END

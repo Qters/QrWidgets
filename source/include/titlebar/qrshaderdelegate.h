@@ -28,6 +28,8 @@ public:
 
     void setBoxColor(const QColor& color);
     QColor boxColor() const;
+    void setNeedPaint(bool needpaint);
+    bool needPaint() const;
 
 protected:
     virtual void mousePressEvent(QMouseEvent* e) override;

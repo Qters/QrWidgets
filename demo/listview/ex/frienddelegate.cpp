@@ -1,4 +1,4 @@
-#include "frienddelegate.h"
+﻿#include "frienddelegate.h"
 
 #include "listview/qrlistdelegate.h"
 
@@ -29,7 +29,7 @@ FriendDelegatePrivate::FriendDelegatePrivate(FriendDelegate *q)
 ///////////////////////
 
 FriendDelegate::FriendDelegate()
-    : ListviewExDelegate(),
+    : ListGroupDelegate(),
       d_ptr(new FriendDelegatePrivate(this))
 {
 
@@ -96,7 +96,7 @@ FriendDelegateDataPrivate::FriendDelegateDataPrivate(FriendDelegateData *q)
 ///////////////////////
 
 FriendDelegateData::FriendDelegateData()
-    : ListviewExData(),
+    : ListGroupData(),
       d_ptr(new FriendDelegateDataPrivate(this))
 {
 

@@ -1,4 +1,4 @@
-#include "groupdelegate.h"
+﻿#include "groupdelegate.h"
 
 #include "groupcell.h"
 
@@ -19,7 +19,7 @@ GroupDelegatePrivate::GroupDelegatePrivate(GroupDelegate *q)
 ///////////////////////
 
 GroupDelegate::GroupDelegate()
-    : ListviewExDelegate(),
+    : ListGroupDelegate(),
       d_ptr(new GroupDelegatePrivate(this))
 {
 
@@ -63,7 +63,7 @@ GroupDelegateDataPrivate::GroupDelegateDataPrivate(GroupDelegateData *q)
 ///////////////////////
 
 GroupDelegateData::GroupDelegateData()
-    : ListviewExData(),
+    : ListGroupData(),
       d_ptr(new GroupDelegateDataPrivate(this))
 {
 

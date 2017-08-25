@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>185</width>
-    <height>38</height>
+    <height>40</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,7 +20,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(255, 199, 217);
+   <string notr="true">
 border-color: rgb(255, 0, 4);</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
@@ -31,7 +31,7 @@ border-color: rgb(255, 0, 4);</string>
     <number>0</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>2</number>
    </property>
    <property name="rightMargin">
     <number>0</number>
@@ -40,7 +40,7 @@ border-color: rgb(255, 0, 4);</string>
     <number>1</number>
    </property>
    <item>
-    <widget class="QLabel" name="groupName">
+    <widget class="::Qters::QrWidgets::QrLabel" name="groupName">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -88,6 +88,12 @@ border-color: rgb(255, 0, 4);</string>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="leftMargin">
+      <number>20</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
      <item>
       <widget class="QLabel" name="name">
        <property name="text">
@@ -125,6 +131,13 @@ border-color: rgb(255, 0, 4);</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>::Qters::QrWidgets::QrLabel</class>
+   <extends>QLabel</extends>
+   <header>qrlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

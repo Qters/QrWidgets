@@ -1,10 +1,10 @@
-#ifndef GROUPDELEGATE_H
+﻿#ifndef GROUPDELEGATE_H
 #define GROUPDELEGATE_H
 
-#include "listviewexdelegate.h"
+#include "listgroupdelegate.h"
 
 class GroupDelegatePrivate;
-class GroupDelegate : public ListviewExDelegate
+class GroupDelegate : public ListGroupDelegate
 {
     Q_OBJECT
 
@@ -27,7 +27,7 @@ public:
 //////////////////////////////////////////////
 
 class GroupDelegateDataPrivate;
-class GroupDelegateData : public ListviewExData {
+class GroupDelegateData : public ListGroupData {
     QR_DECLARE_PRIVATE(GroupDelegateData)
 
 public:

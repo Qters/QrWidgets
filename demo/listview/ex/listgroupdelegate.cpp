@@ -1,4 +1,4 @@
-﻿#include "listviewexdelegate.h"
+﻿#include "listgroupdelegate.h"
 
 #include <QtCore/qdebug.h>
 #include <QtCore/qcryptographichash.h>
@@ -8,24 +8,28 @@
 
 USING_NS_QRWIDGETS;
 
-class ListviewExDelegatePrivate{
-    QR_DECLARE_PUBLIC(ListviewExDelegate)
+class ListGroupDelegatePrivate{
+    QR_DECLARE_PUBLIC(ListGroupDelegate)
 
 public:
-    ListviewExDelegatePrivate(ListviewExDelegate* q) : q_ptr(q) {}
+    ListGroupDelegatePrivate(ListGroupDelegate* q);
 
 public:
-    QMap<QString, ListviewExData*> groupHeadDatas;
+    QMap<QString, ListGroupData*> groupHeadDatas;
 };
 
-ListviewExDelegate::ListviewExDelegate()
+ListGroupDelegatePrivate::ListGroupDelegatePrivate(ListGroupDelegate *q)
+    : q_ptr(q)
+{}
+
+ListGroupDelegate::ListGroupDelegate()
     : QrListVidewDelegate(),
-      d_ptr(new ListviewExDelegatePrivate(this))
+      d_ptr(new ListGroupDelegatePrivate(this))
 {
 
 }
 
-void ListviewExDelegate::sortImpl(bool update/* = true*/)
+void ListGroupDelegate::sortImpl(bool update/* = true*/)
 {
     QrListVidewDelegate::sortImpl(false);   //  delay update to end of function
 
@@ -33,7 +37,7 @@ void ListviewExDelegate::sortImpl(bool update/* = true*/)
     QMap<QString, bool> existGroups;
     QVector<QrListViewData*> viewDatas = viewDataset();
     for(int dataIdx=0; dataIdx<viewDatas.size(); ++dataIdx) {
-        ListviewExData* dataEx = static_cast<ListviewExData*>(viewDatas.at(dataIdx));
+        ListGroupData* dataEx = static_cast<ListGroupData*>(viewDatas.at(dataIdx));
         if(nullptr == dataEx) {
             continue;
         }
@@ -45,56 +49,42 @@ void ListviewExDelegate::sortImpl(bool update/* = true*/)
         }
     }
 
-//    for(int dataIdx=0; dataIdx<viewDatas.size(); ++dataIdx) {
-//        ListviewExData* dataEx = static_cast<ListviewExData*>(viewDatas.at(dataIdx));
-//        if(nullptr == dataEx) {
-//            continue;
-//        }
-//        qDebug() << dataEx->toString();
-//    }
-
-    int r = verScrollBarRangeMaxValue(0);
-    listview()->verticalScrollBar()->setRange(0, r);
+    listview()->verticalScrollBar()->setRange(0, verScrollBarRangeMaxValue(0));
 
     if(update) {
         emit dataChanged(); //  delay update to here
     }
 }
 
-void ListviewExDelegate::addData(QrListViewData *data)
+void ListGroupDelegate::addData(QrListViewData *data)
 {
-    ListviewExData* dataEx = static_cast<ListviewExData*>(data);
+    ListGroupData* dataEx = static_cast<ListGroupData*>(data);
     if(nullptr == dataEx) {
         return;
     }
     dataEx->calcGroupInfo();
 
-    Q_D(ListviewExDelegate);
+    Q_D(ListGroupDelegate);
     dataEx->setGroupHead(! d->groupHeadDatas.contains(dataEx->groupHex()));
 
     QrListVidewDelegate::addData(dataEx);
 }
 
-int ListviewExDelegate::itemCountToShow(int listviewHeight, int itemHeight)
+int ListGroupDelegate::itemCountToShow(int listviewHeight, int itemHeight)
 {
     Q_UNUSED(itemHeight);
     return (listviewHeight/normalItemHeight()) + 2;
 }
 
-int ListviewExDelegate::verScrollBarRangeMaxValue(int itemHeight)
+int ListGroupDelegate::verScrollBarRangeMaxValue(int itemHeight)
 {
-//    return QrListVidewDelegate::verScrollBarRangeMaxValue(itemHeight);
-
-//    return itemsSize() * itemHeight - 2 * listview()->size().height();
-//    return 37670 - listview()->height();
-
     Q_UNUSED(itemHeight);
 
-    Q_D(const ListviewExDelegate);
+    Q_D(const ListGroupDelegate);
     int widgetHeightOfAllDatas = 0;
     QVector<QrListViewData*> viewDatas = viewDataset();
     for(int dataIdx=0; dataIdx<viewDatas.size(); ++dataIdx) {
-        ListviewExData* dataEx = static_cast<ListviewExData*>(viewDatas.at(dataIdx));
+        ListGroupData* dataEx = static_cast<ListGroupData*>(viewDatas.at(dataIdx));
         if(nullptr == dataEx) {
             continue;
         }
@@ -103,9 +93,9 @@ int ListviewExDelegate::verScrollBarRangeMaxValue(int itemHeight)
     return widgetHeightOfAllDatas - listview()->height();
 }
 
-int ListviewExDelegate::groupItemRenderHeight(QrListViewData *data) const
+int ListGroupDelegate::groupItemRenderHeight(QrListViewData *data) const
 {
-    ListviewExData* dataEx = static_cast<ListviewExData*>(data);
+    ListGroupData* dataEx = static_cast<ListGroupData*>(data);
     if(nullptr == dataEx) {
         return 0;
     }
@@ -118,45 +108,45 @@ int ListviewExDelegate::groupItemRenderHeight(QrListViewData *data) const
 
 ///////////////////////////////
 
-class ListviewExDataPrivate{
-    QR_DECLARE_PUBLIC(ListviewExData)
+class ListGroupDataPrivate{
+    QR_DECLARE_PUBLIC(ListGroupData)
 
 public:
-    ListviewExDataPrivate(ListviewExData* q) : q_ptr(q) {}
+    ListGroupDataPrivate(ListGroupData* q) : q_ptr(q) {}
 
 public:
     bool isGroupHead = false;   //  是否是组头
     QString groupHex;   //  组的哈希值
 };
 
-ListviewExData::ListviewExData()
+ListGroupData::ListGroupData()
     : QrListViewData(),
-      d_ptr(new ListviewExDataPrivate(this))
+      d_ptr(new ListGroupDataPrivate(this))
 {
 
 }
 
-void ListviewExData::setGroupHead(bool isHead)
+void ListGroupData::setGroupHead(bool isHead)
 {
-    Q_D(ListviewExData);
+    Q_D(ListGroupData);
     d->isGroupHead = isHead;
 }
 
-bool ListviewExData::isGroupHead() const
+bool ListGroupData::isGroupHead() const
 {
-    Q_D(const ListviewExData);
+    Q_D(const ListGroupData);
     return d->isGroupHead;
 }
 
-QString ListviewExData::groupHex() const
+QString ListGroupData::groupHex() const
 {
-    Q_D(const ListviewExData);
+    Q_D(const ListGroupData);
     return d->groupHex;
 }
 
-void ListviewExData::calcGroupInfo()
+void ListGroupData::calcGroupInfo()
 {
-    Q_D(ListviewExData);
+    Q_D(ListGroupData);
     d->groupHex = QString(QCryptographicHash::hash(
                               groupKey().toUtf8(),
                               QCryptographicHash::Md5).toHex());

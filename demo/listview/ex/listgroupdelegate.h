@@ -1,22 +1,22 @@
-#ifndef LISTVIEWEXDELEGATE_H
-#define LISTVIEWEXDELEGATE_H
+﻿#ifndef LISTGROUPDELEGATE_H
+#define LISTGROUPDELEGATE_H
 
 #include "listview/qrlistdelegate.h"
 
 /*!
- * \brief The ListviewExDelegate class
+ * \brief The ListGroupDelegate class
  * support group view
  * sort: 1, group. 2, item in group.
  */
-class ListviewExDelegatePrivate;
-class ListviewExDelegate : public Qters::QrWidgets::QrListVidewDelegate
+class ListGroupDelegatePrivate;
+class ListGroupDelegate : public Qters::QrWidgets::QrListVidewDelegate
 {
     Q_OBJECT
 
-    QR_DECLARE_PRIVATE(ListviewExDelegate)
+    QR_DECLARE_PRIVATE(ListGroupDelegate)
 
 public:
-    ListviewExDelegate();
+    ListGroupDelegate();
 
 public:
     virtual int groupItemRenderHeight(Qters::QrWidgets::QrListViewData *data) const;
@@ -34,16 +34,16 @@ public:
 };
 
 /*!
- * \brief The ListviewExData class
+ * \brief The ListGroupData class
  * support group view's data
  */
-class ListviewExDataPrivate;
-class ListviewExData : public Qters::QrWidgets::QrListViewData {
+class ListGroupDataPrivate;
+class ListGroupData : public Qters::QrWidgets::QrListViewData {
 
-    QR_DECLARE_PRIVATE(ListviewExData)
+    QR_DECLARE_PRIVATE(ListGroupData)
 
 public:
-    ListviewExData();
+    ListGroupData();
 
 public:
     void setGroupHead(bool isHead);
@@ -56,4 +56,4 @@ public:
     virtual QString groupKey() = 0;
 };
 
-#endif // LISTVIEWEXDELEGATE_H
+#endif // LISTGROUPDELEGATE_H

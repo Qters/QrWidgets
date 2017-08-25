@@ -1,7 +1,7 @@
-#include "listviewwithemptytips.h"
+﻿#include "listviewwithemptytips.h"
 #include "ui_listviewwithemptytips.h"
 
-#include "listviewexdelegate.h"
+#include "listgroupdelegate.h"
 
 USING_NS_QRWIDGETS;
 
@@ -30,7 +30,7 @@ ListviewWithEmptyTips::ListviewWithEmptyTips(QWidget *parent) :
     ui->emptyTips->hide();
 //    ui->listview->hide();
 
-    connect(ui->listview->delegate(), &ListviewExDelegate::dataEmpty, [this](bool isEmpty){
+    connect(ui->listview->delegate(), &ListGroupDelegate::dataEmpty, [this](bool isEmpty){
         Q_D(const ListviewWithEmptyTips);
         if(isEmpty) {
             ui->emptyTips->setText(d->dataEmptyTips);

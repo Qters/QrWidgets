@@ -1,15 +1,16 @@
-#ifndef FRIENDCELL_H
+﻿#ifndef FRIENDCELL_H
 #define FRIENDCELL_H
 
 #include <QWidget>
+
+#include "listgroupwidget.h"
 
 namespace Ui {
 class FriendCell;
 }
 
-
 class FriendDelegateData;
-class FriendCell : public QWidget
+class FriendCell : public ListGroupWidget
 {
     Q_OBJECT
 
@@ -18,10 +19,12 @@ public:
     ~FriendCell();
 
 public:
-    bool init(FriendDelegateData *_data);
+    bool init(FriendDelegateData *data);
 
-    int normalItemHeight() const;
-    int headItemHeight() const;
+    // ListviewExWidget interface
+public:
+    virtual int normalItemHeight() const override;
+    virtual int headItemHeight() const override;
 
 private:
     Ui::FriendCell *ui;

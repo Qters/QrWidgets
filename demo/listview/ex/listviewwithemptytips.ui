@@ -40,15 +40,15 @@
     </widget>
    </item>
    <item>
-    <widget class="ListviewEx" name="listview" native="true"/>
+    <widget class="ListGroupView" name="listview" native="true"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ListviewEx</class>
+   <class>ListGroupView</class>
    <extends>QWidget</extends>
-   <header>listviewex.h</header>
+   <header>listgroupview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

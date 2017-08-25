@@ -1,10 +1,10 @@
-#include "friendcell.h"
+﻿#include "friendcell.h"
 #include "ui_friendcell.h"
 
 #include "frienddelegate.h"
 
 FriendCell::FriendCell(QWidget *parent) :
-    QWidget(parent),
+    ListGroupWidget(parent),
     ui(new Ui::FriendCell)
 {
     ui->setupUi(this);

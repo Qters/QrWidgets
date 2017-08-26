@@ -66,6 +66,7 @@ public:
     virtual void initMenu(QMenu* menu);
     virtual bool hasMenu() const;
 
+    virtual void onScrollToLast();
     virtual void onDoubleClick(QWidget *item, QrListViewData* data, bool click);
     virtual void onClick(QWidget *item, QrListViewData* data, bool click);
 
@@ -100,8 +101,8 @@ public:
     int rawSize() const;
     QrListViewData* setItemWidgetByIndex(int index, QWidget *itemWidget);
 
-    void refreshClickData(int index);
-    void refreshDoubleClickData(int index);
+    void itemClick(int index);
+    void itemDoubleClick(int index);
 
     QVector<QrListViewData*> rawDataset();
     QVector<QrListViewData*> viewDataset();

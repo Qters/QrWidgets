@@ -204,6 +204,11 @@ bool QrListVidewDelegate::hasMenu() const
     return false;
 }
 
+void QrListVidewDelegate::onScrollToLast()
+{
+
+}
+
 void QrListVidewDelegate::onDoubleClick(QWidget *item, QrListViewData* data, bool click)
 {
     Q_UNUSED(item);
@@ -332,7 +337,7 @@ QrListViewData* QrListVidewDelegate::setItemWidgetByIndex(int index, QWidget *it
     return data;
 }
 
-void QrListVidewDelegate::refreshDoubleClickData(int index)
+void QrListVidewDelegate::itemDoubleClick(int index)
 {
     Q_D(QrListVidewDelegate);
     if(nullptr != d->doubleClickData) {
@@ -358,7 +363,7 @@ QVector<QrListViewData *> QrListVidewDelegate::viewDataset()
     return d->viewDataset;
 }
 
-void QrListVidewDelegate::refreshClickData(int index)
+void QrListVidewDelegate::itemClick(int index)
 {
     Q_D(QrListVidewDelegate);
     if(nullptr != d->clickData) {

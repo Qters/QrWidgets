@@ -46,8 +46,6 @@ public:
     virtual QString key() const override;
     virtual QString toString() const override;
     virtual bool compare(const Qters::QrWidgets::QrListViewData *other) const override;
-
-    virtual bool isGroupData() const override;
 };
 
 #endif // FRIENDDELEGATE_H

@@ -142,7 +142,7 @@ int ListGroupView::dataChangeUpdaetImpl()
         }
         setWidgetItemIndex(itemWidget, currentItemIndex);
 
-        if(nullptr != delegateData && delegateData->isGroupData()) {
+        if(nullptr != delegateData) {
             itemWidgetOffset += delegate()->groupItemRenderHeight(delegateData);
         }
         currentItemIndex += 1;

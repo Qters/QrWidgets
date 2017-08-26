@@ -401,11 +401,6 @@ QString QrListViewData::toString() const
     return "";
 }
 
-bool QrListViewData::isGroupData() const
-{
-    return false;
-}
-
 bool QrListViewData::isOnClick() const
 {
     Q_D(const QrListViewData);

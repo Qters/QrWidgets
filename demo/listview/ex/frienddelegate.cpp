@@ -86,11 +86,6 @@ bool FriendDelegateData::compare(const QrListViewData *other) const
     return groupId < otherData->groupId;
 }
 
-bool FriendDelegateData::isGroupData() const
-{
-    return true;
-}
-
 QString FriendDelegateData::key() const
 {
     return username;

@@ -29,9 +29,6 @@ public:
     virtual QString toString() const;
 
 public:
-    virtual bool isGroupData() const;
-
-public:
     bool isOnClick() const;
     void onClick(bool click);
     bool isOnDoubleClick() const;

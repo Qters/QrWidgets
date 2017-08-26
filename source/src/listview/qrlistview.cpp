@@ -40,34 +40,6 @@ QrListViewPrivate::QrListViewPrivate(QrListView *q)
 
 }
 
-void QrListView::updateOne(const QString &key)
-{
-    if(! delegate()->isDataExist(key)) {
-        return;
-    }
-
-    Q_D(QrListView);
-    auto delegateData = delegate()->getData(key);
-    if(nullptr == delegateData ||
-            ! d->dataWidgets.contains(delegateData)) {
-        return;
-    }
-
-    QWidget* widget = d->dataWidgets[delegateData];
-    delegate()->setItemWidgetByData(delegateData, widget);
-    widget->update();
-}
-
-void QrListView::onDoubleClick()
-{
-
-}
-
-void QrListView::onClick()
-{
-
-}
-
 NS_QRWIDGETS_END
 
 USING_NS_QRWIDGETS;
@@ -229,6 +201,34 @@ QrListVidewDelegate *QrListView::delegate()
 {
     Q_D(QrListView);
     return d->delegate;
+}
+
+void QrListView::updateOne(const QString &key)
+{
+    if(! delegate()->isDataExist(key)) {
+        return;
+    }
+
+    Q_D(QrListView);
+    auto delegateData = delegate()->getData(key);
+    if(nullptr == delegateData ||
+            ! d->dataWidgets.contains(delegateData)) {
+        return;
+    }
+
+    QWidget* widget = d->dataWidgets[delegateData];
+    delegate()->setItemWidgetByData(delegateData, widget);
+    widget->update();
+}
+
+void QrListView::onDoubleClick()
+{
+
+}
+
+void QrListView::onClick()
+{
+
 }
 
 QMenu *QrListView::menu()

@@ -19,6 +19,7 @@ public:
     ListGroupDelegate();
 
 public:
+    void initItemHeights();
     void showGroupItems(const QString& groupHex, bool visible);
 
 public:
@@ -32,9 +33,10 @@ public:
     virtual int verScrollBarRangeMaxValue(int itemHeight) override;
     virtual void setItemWidgetByData(Qters::QrWidgets::QrListViewData *data, QWidget *itemWidget) override;
 
-public:
-    virtual int normalItemHeight() const = 0;
-    virtual int headItemHeight() const = 0;
+protected:
+    int simpleheadItemHeight() const;
+    int normalItemHeight() const;
+    int headItemHeight() const;
 };
 
 /*!

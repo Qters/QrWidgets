@@ -11,19 +11,12 @@ class FriendDelegatePrivate{
 
 public:
     FriendDelegatePrivate(FriendDelegate *q);
-
-public:
-    int normalItemHeight = 0;
-    int headItemHeigth = 0;
 };
 
 
 FriendDelegatePrivate::FriendDelegatePrivate(FriendDelegate *q)
     : q_ptr(q)
 {
-    FriendCell cell;
-    normalItemHeight = cell.normalItemHeight()/* + 15*/;
-    headItemHeigth = cell.headItemHeight();
 }
 
 ///////////////////////
@@ -32,7 +25,7 @@ FriendDelegate::FriendDelegate()
     : ListGroupDelegate(),
       d_ptr(new FriendDelegatePrivate(this))
 {
-
+    initItemHeights();
 }
 
 void FriendDelegate::appendFriend(int groupId, QString groupName,
@@ -50,18 +43,6 @@ void FriendDelegate::appendFriend(int groupId, QString groupName,
 QWidget *FriendDelegate::createItemWidget()
 {
     return new FriendCell();
-}
-
-int FriendDelegate::normalItemHeight() const
-{
-    Q_D(const FriendDelegate);
-    return d->normalItemHeight;
-}
-
-int FriendDelegate::headItemHeight() const
-{
-    Q_D(const FriendDelegate);
-    return d->headItemHeigth;
 }
 
 //////////////////////////////////////

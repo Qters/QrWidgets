@@ -16,11 +16,6 @@ public:
     // QrListVidewDelegate interface
 public:
     virtual QWidget *createItemWidget() override;
-
-    // ListviewExDelegate interface
-public:
-    virtual int normalItemHeight() const override;
-    virtual int headItemHeight() const override;
 };
 
 //////////////////////////////////////////////

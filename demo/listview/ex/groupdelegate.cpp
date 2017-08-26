@@ -22,22 +22,12 @@ GroupDelegate::GroupDelegate()
     : ListGroupDelegate(),
       d_ptr(new GroupDelegatePrivate(this))
 {
-
+    initItemHeights();
 }
 
 QWidget *GroupDelegate::createItemWidget()
 {
     return new GroupCell();
-}
-
-int GroupDelegate::normalItemHeight() const
-{
-    return 1;
-}
-
-int GroupDelegate::headItemHeight() const
-{
-    return 1;
 }
 
 //////////////////////////////////////

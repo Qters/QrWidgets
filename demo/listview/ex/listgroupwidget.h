@@ -21,7 +21,7 @@ Q_SIGNALS:
     void onGroupHeadClick();
 
 public:
-    bool initOnlyHeadWidget(ListGroupData *data);
+    bool initSimpleHeadWidget(ListGroupData *data);
 
 public:
     virtual bool initHeadWidget(ListGroupData *data);
@@ -31,6 +31,7 @@ public:
     virtual void showHeadWidget(bool show) = 0;
     virtual void showContentWidget(bool show) = 0;
 
+    virtual int simpleheadItemHeight() const;
     virtual int headItemHeight() const = 0;
     virtual int normalItemHeight() const = 0;
 };

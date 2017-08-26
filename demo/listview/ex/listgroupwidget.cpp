@@ -21,13 +21,15 @@ ListGroupWidget::~ListGroupWidget()
 
 }
 
-bool ListGroupWidget::initOnlyHeadWidget(ListGroupData *data)
+bool ListGroupWidget::initSimpleHeadWidget(ListGroupData *data)
 {
     if(! initHeadWidget(data)) {
         return false;
     }
 
     showContentWidget(false);
+
+    return true;
 }
 
 bool ListGroupWidget::initHeadWidget(ListGroupData *data)
@@ -48,4 +50,9 @@ bool ListGroupWidget::initNormalWidget(ListGroupData *data)
     showContentWidget(true);
 
     return true;
+}
+
+int ListGroupWidget::simpleheadItemHeight() const
+{
+    return headItemHeight() - normalItemHeight();
 }

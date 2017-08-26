@@ -17,17 +17,40 @@ public:
 
 public:
     QMap<QString, QVector<ListGroupData*> > groupDatas;
+
+public:
+    int simpleheadItemHeight = 1;
+    int normalItemHeight = 1;
+    int headItemHeigth = 1;
 };
 
 ListGroupDelegatePrivate::ListGroupDelegatePrivate(ListGroupDelegate *q)
     : q_ptr(q)
 {}
 
+///////////////////////////////////////////////
+
 ListGroupDelegate::ListGroupDelegate()
     : QrListVidewDelegate(),
       d_ptr(new ListGroupDelegatePrivate(this))
 {
+}
 
+void ListGroupDelegate::initItemHeights()
+{
+    Q_D(ListGroupDelegate);
+    ListGroupWidget *widget = static_cast<ListGroupWidget *>(createItemWidget());
+    if(nullptr == widget) {
+        qWarning("fail to init item height.");
+        return;
+    }
+
+    d->simpleheadItemHeight = widget->simpleheadItemHeight();
+    d->normalItemHeight = widget->normalItemHeight();
+    d->headItemHeigth = widget->headItemHeight();
+
+    delete widget;
+    widget = nullptr;
 }
 
 void ListGroupDelegate::showGroupItems(const QString &groupHex, bool visible)
@@ -128,11 +151,29 @@ void ListGroupDelegate::setItemWidgetByData(QrListViewData *_data, QWidget *_ite
         if(data->isVisible()) {
             itemWidget->initHeadWidget(data);
         } else {
-            itemWidget->initOnlyHeadWidget(data);
+            itemWidget->initSimpleHeadWidget(data);
         }
     } else {
         itemWidget->initNormalWidget(data);
     }
+}
+
+int ListGroupDelegate::simpleheadItemHeight() const
+{
+    Q_D(const ListGroupDelegate);
+    return d->simpleheadItemHeight;
+}
+
+int ListGroupDelegate::normalItemHeight() const
+{
+    Q_D(const ListGroupDelegate);
+    return d->normalItemHeight;
+}
+
+int ListGroupDelegate::headItemHeight() const
+{
+    Q_D(const ListGroupDelegate);
+    return d->headItemHeigth;
 }
 
 int ListGroupDelegate::groupItemRenderHeight(QrListViewData *data) const
@@ -142,7 +183,11 @@ int ListGroupDelegate::groupItemRenderHeight(QrListViewData *data) const
         return 0;
     }
     if(dataEx->isGroupHead()) {
-        return headItemHeight();
+        if(dataEx->isVisible()) {
+            return headItemHeight();
+        } else {
+            return simpleheadItemHeight();
+        }
     }
     return normalItemHeight();
 }

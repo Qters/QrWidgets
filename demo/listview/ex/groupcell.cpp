@@ -19,16 +19,20 @@ bool GroupCell::initHeadWidget(ListGroupData *data)
     return true;
 }
 
-bool GroupCell::initOnlyHeadWidget(ListGroupData *data)
+bool GroupCell::initNormalWidget(ListGroupData *data)
 {
     Q_UNUSED(data);
     return true;
 }
 
-bool GroupCell::initNormalWidget(ListGroupData *data)
+void GroupCell::showHeadWidget(bool show)
 {
-    Q_UNUSED(data);
-    return true;
+    Q_UNUSED(show);
+}
+
+void GroupCell::showContentWidget(bool show)
+{
+    Q_UNUSED(show);
 }
 
 int GroupCell::normalItemHeight() const

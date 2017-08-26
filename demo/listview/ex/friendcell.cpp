@@ -23,6 +23,10 @@ FriendCell::~FriendCell()
 
 bool FriendCell::initHeadWidget(ListGroupData *_data)
 {
+    if(! ListGroupWidget::initHeadWidget(_data)) {
+        return false;
+    }
+
     FriendDelegateData* data = static_cast<FriendDelegateData*>(_data);
     if(nullptr == data) {
         qDebug() << "friend cell's data is nullptr.";
@@ -31,31 +35,16 @@ bool FriendCell::initHeadWidget(ListGroupData *_data)
     ui->groupName->setText(data->groupName);
     ui->name->setText(data->username);
     ui->sign->setText(data->sign);
-
-    ui->groupName->show();
-    ui->groupLine->show();
-
-    return true;
-}
-
-bool FriendCell::initOnlyHeadWidget(ListGroupData *data)
-{
-    if(! initHeadWidget(data)) {
-        return false;
-    }
-
-    for(int idx=0; idx<ui->contents->count(); ++idx) {
-        QWidget* contentWidget = ui->contents->itemAt(idx)->widget();
-        if(nullptr != contentWidget) {
-            contentWidget->hide();
-        }
-    }
 
     return true;
 }
 
 bool FriendCell::initNormalWidget(ListGroupData *_data)
 {
+    if(! ListGroupWidget::initNormalWidget(_data)) {
+        return false;
+    }
+
     FriendDelegateData* data = static_cast<FriendDelegateData*>(_data);
     if(nullptr == data) {
         qDebug() << "friend cell's data is nullptr.";
@@ -65,10 +54,32 @@ bool FriendCell::initNormalWidget(ListGroupData *_data)
     ui->name->setText(data->username);
     ui->sign->setText(data->sign);
 
-    ui->groupName->hide();
-    ui->groupLine->hide();
-
     return true;
+}
+
+void FriendCell::showHeadWidget(bool show)
+{
+    if(show) {
+        ui->groupName->show();
+        ui->groupLine->show();
+    } else {
+        ui->groupName->hide();
+        ui->groupLine->hide();
+    }
+}
+
+void FriendCell::showContentWidget(bool show)
+{
+    for(int idx=0; idx<ui->contents->count(); ++idx) {
+        QWidget* contentWidget = ui->contents->itemAt(idx)->widget();
+        if(nullptr != contentWidget) {
+            if(show) {
+                contentWidget->show();
+            } else {
+                contentWidget->hide();
+            }
+        }
+    }
 }
 
 int FriendCell::normalItemHeight() const

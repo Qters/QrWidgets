@@ -35,9 +35,6 @@ ListViewExDemo::ListViewExDemo(QWidget *parent) :
                                    : ListViewExDemoPrivate::StackIndex::SearchResult);
     });
     ui->stackedWidget->setCurrentIndex(ListViewExDemoPrivate::StackIndex::DataView);
-
-    auto rect = ui->dataView->friends()->listview()->rect();
-    int height = ui->dataView->friends()->listview()->height();
 }
 
 ListViewExDemo::~ListViewExDemo()

@@ -13,13 +13,13 @@ GroupCell::~GroupCell()
     delete ui;
 }
 
-bool GroupCell::initHeadWidget(ListGroupData *data)
+bool GroupCell::initHeadPartWidget(ListGroupData *data)
 {
     Q_UNUSED(data);
     return true;
 }
 
-bool GroupCell::initNormalWidget(ListGroupData *data)
+bool GroupCell::initContentPartWidget(ListGroupData *data)
 {
     Q_UNUSED(data);
     return true;
@@ -35,12 +35,12 @@ void GroupCell::showContentWidget(bool show)
     Q_UNUSED(show);
 }
 
-int GroupCell::normalItemHeight() const
+int GroupCell::contentHeight() const
 {
     return size().height();
 }
 
-int GroupCell::headItemHeight() const
+int GroupCell::entireHeight() const
 {
     return size().height();
 }

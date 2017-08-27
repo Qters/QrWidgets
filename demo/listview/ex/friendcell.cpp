@@ -21,9 +21,9 @@ FriendCell::~FriendCell()
     delete ui;
 }
 
-bool FriendCell::initHeadWidget(ListGroupData *_data)
+bool FriendCell::initHeadPartWidget(ListGroupData *_data)
 {
-    if(! ListGroupWidget::initHeadWidget(_data)) {
+    if(! ListGroupWidget::initHeadPartWidget(_data)) {
         return false;
     }
 
@@ -33,15 +33,13 @@ bool FriendCell::initHeadWidget(ListGroupData *_data)
         return false;
     }
     ui->groupName->setText(data->groupName);
-    ui->name->setText(data->username);
-    ui->sign->setText(data->sign);
 
     return true;
 }
 
-bool FriendCell::initNormalWidget(ListGroupData *_data)
+bool FriendCell::initContentPartWidget(ListGroupData *_data)
 {
-    if(! ListGroupWidget::initNormalWidget(_data)) {
+    if(! ListGroupWidget::initContentPartWidget(_data)) {
         return false;
     }
 
@@ -50,7 +48,6 @@ bool FriendCell::initNormalWidget(ListGroupData *_data)
         qDebug() << "friend cell's data is nullptr.";
         return false;
     }
-    ui->groupName->setText(data->groupName);
     ui->name->setText(data->username);
     ui->sign->setText(data->sign);
 
@@ -82,14 +79,14 @@ void FriendCell::showContentWidget(bool show)
     }
 }
 
-int FriendCell::normalItemHeight() const
+int FriendCell::contentHeight() const
 {
     return size().height()
             - ui->groupName->height()
             - ui->groupLine->height();
 }
 
-int FriendCell::headItemHeight() const
+int FriendCell::entireHeight() const
 {
     return size().height();
 }

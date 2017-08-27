@@ -17,14 +17,14 @@ public:
 
     // ListGroupWidget interface
 public:
-    virtual bool initHeadWidget(ListGroupData *data) override;
-    virtual bool initNormalWidget(ListGroupData *data) override;
+    virtual bool initHeadPartWidget(ListGroupData *data) override;
+    virtual bool initContentPartWidget(ListGroupData *data) override;
 
     virtual void showHeadWidget(bool show) override;
     virtual void showContentWidget(bool show) override;
 
-    virtual int headItemHeight() const override;
-    virtual int normalItemHeight() const override;
+    virtual int entireHeight() const override;
+    virtual int contentHeight() const override;
 
 private:
     Ui::GroupCell *ui;

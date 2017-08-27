@@ -21,19 +21,19 @@ Q_SIGNALS:
     void onGroupHeadClick();
 
 public:
-    bool initSimpleHeadWidget(ListGroupData *data);
+    bool initEntireWidget(ListGroupData *data);
 
 public:
-    virtual bool initHeadWidget(ListGroupData *data);
-    virtual bool initNormalWidget(ListGroupData *data);
+    virtual bool initHeadPartWidget(ListGroupData *data);
+    virtual bool initContentPartWidget(ListGroupData *data);
 
 public:
     virtual void showHeadWidget(bool show) = 0;
     virtual void showContentWidget(bool show) = 0;
 
-    virtual int simpleheadItemHeight() const;
-    virtual int headItemHeight() const = 0;
-    virtual int normalItemHeight() const = 0;
+    virtual int headHeight() const;
+    virtual int entireHeight() const = 0;
+    virtual int contentHeight() const = 0;
 };
 
 #endif // LISTGROUPWIDGET_H

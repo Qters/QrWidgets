@@ -19,9 +19,9 @@ public:
     QMap<QString, QVector<ListGroupData*> > groupDatas;
 
 public:
-    int simpleheadItemHeight = 1;
-    int normalItemHeight = 1;
-    int headItemHeigth = 1;
+    int headHeight = 1;
+    int contentHeight = 1;
+    int entireHeigth = 1;
 };
 
 ListGroupDelegatePrivate::ListGroupDelegatePrivate(ListGroupDelegate *q)
@@ -45,9 +45,9 @@ void ListGroupDelegate::initItemHeights()
         return;
     }
 
-    d->simpleheadItemHeight = widget->simpleheadItemHeight();
-    d->normalItemHeight = widget->normalItemHeight();
-    d->headItemHeigth = widget->headItemHeight();
+    d->headHeight = widget->headHeight();
+    d->contentHeight = widget->contentHeight();
+    d->entireHeigth = widget->entireHeight();
 
     delete widget;
     widget = nullptr;
@@ -121,7 +121,7 @@ void ListGroupDelegate::addData(QrListViewData *data)
 int ListGroupDelegate::itemCountToShow(int listviewHeight, int itemHeight)
 {
     Q_UNUSED(itemHeight);
-    return (listviewHeight/normalItemHeight()) + 2;
+    return (listviewHeight/contentHeight()) + 2;
 }
 
 int ListGroupDelegate::verScrollBarRangeMaxValue(int itemHeight)
@@ -154,31 +154,31 @@ void ListGroupDelegate::setItemWidgetByData(QrListViewData *_data, QWidget *_ite
 
     if(data->isGroupHead()) {
         if(data->isVisible()) {
-            itemWidget->initHeadWidget(data);
+            itemWidget->initEntireWidget(data);
         } else {
-            itemWidget->initSimpleHeadWidget(data);
+            itemWidget->initHeadPartWidget(data);
         }
     } else {
-        itemWidget->initNormalWidget(data);
+        itemWidget->initContentPartWidget(data);
     }
 }
 
-int ListGroupDelegate::simpleheadItemHeight() const
+int ListGroupDelegate::headHeight() const
 {
     Q_D(const ListGroupDelegate);
-    return d->simpleheadItemHeight;
+    return d->headHeight;
 }
 
-int ListGroupDelegate::normalItemHeight() const
+int ListGroupDelegate::contentHeight() const
 {
     Q_D(const ListGroupDelegate);
-    return d->normalItemHeight;
+    return d->contentHeight;
 }
 
-int ListGroupDelegate::headItemHeight() const
+int ListGroupDelegate::entireHeigth() const
 {
     Q_D(const ListGroupDelegate);
-    return d->headItemHeigth;
+    return d->entireHeigth;
 }
 
 int ListGroupDelegate::groupItemRenderHeight(QrListViewData *data) const
@@ -187,14 +187,19 @@ int ListGroupDelegate::groupItemRenderHeight(QrListViewData *data) const
     if(nullptr == dataEx) {
         return 0;
     }
+
     if(dataEx->isGroupHead()) {
         if(dataEx->isVisible()) {
-            return headItemHeight();
+            return entireHeigth();
         } else {
-            return simpleheadItemHeight();
+            return headHeight();
         }
     }
-    return normalItemHeight();
+
+    if(! dataEx->isVisible()) {
+        return 0;
+    }
+    return contentHeight();
 }
 
 

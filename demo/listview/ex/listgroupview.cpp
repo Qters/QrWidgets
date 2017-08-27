@@ -70,6 +70,8 @@ QWidget *ListGroupView::createWidget()
 
         delegate()->showGroupItems(data->groupHex(), ! data->isVisible());
 
+        verticalScrollBar()->setRange(0, delegate()->verScrollBarRangeMaxValue(0));
+
         emit delegate()->dataChanged();
     });
     return widget;

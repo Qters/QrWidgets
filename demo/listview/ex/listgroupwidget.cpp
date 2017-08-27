@@ -21,20 +21,17 @@ ListGroupWidget::~ListGroupWidget()
 
 }
 
-bool ListGroupWidget::initSimpleHeadWidget(ListGroupData *data)
+bool ListGroupWidget::initEntireWidget(ListGroupData *data)
 {
-    if(! initHeadWidget(data)) {
+    Q_UNUSED(data);
+
+    if(! initHeadPartWidget(data)) {
         return false;
     }
 
-    showContentWidget(false);
-
-    return true;
-}
-
-bool ListGroupWidget::initHeadWidget(ListGroupData *data)
-{
-    Q_UNUSED(data);
+    if(! initContentPartWidget(data)) {
+        return false;
+    }
 
     showHeadWidget(true);
     showContentWidget(true);
@@ -42,7 +39,17 @@ bool ListGroupWidget::initHeadWidget(ListGroupData *data)
     return true;
 }
 
-bool ListGroupWidget::initNormalWidget(ListGroupData *data)
+bool ListGroupWidget::initHeadPartWidget(ListGroupData *data)
+{
+    Q_UNUSED(data);
+
+    showHeadWidget(true);
+    showContentWidget(false);
+
+    return true;
+}
+
+bool ListGroupWidget::initContentPartWidget(ListGroupData *data)
 {
     Q_UNUSED(data);
 
@@ -52,7 +59,7 @@ bool ListGroupWidget::initNormalWidget(ListGroupData *data)
     return true;
 }
 
-int ListGroupWidget::simpleheadItemHeight() const
+int ListGroupWidget::headHeight() const
 {
-    return headItemHeight() - normalItemHeight();
+    return entireHeight() - contentHeight();
 }

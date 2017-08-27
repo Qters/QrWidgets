@@ -35,9 +35,9 @@ public:
     virtual void setItemWidgetByData(Qters::QrWidgets::QrListViewData *data, QWidget *itemWidget) override;
 
 protected:
-    int simpleheadItemHeight() const;
-    int normalItemHeight() const;
-    int headItemHeight() const;
+    int headHeight() const;
+    int contentHeight() const;
+    int entireHeigth() const;
 };
 
 /*!

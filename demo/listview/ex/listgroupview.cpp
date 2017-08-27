@@ -128,8 +128,13 @@ int ListGroupView::dataChangeUpdaetImpl()
             }
 
             if(! delegateData->isVisible()
-                    && ! delegateData->isGroupHead()) {
+                    && ! delegateData->isGroupHead()) { //  head's part show, content's part hide
                 continue;
+            }
+
+            if(0 != currentItemIndex && delegateData->isGroupHead()) {
+                itemWidgetOffset += delegate()->groupMargin();
+                itemWidget->move(0, itemWidgetOffset);
             }
 
             delegate()->setItemWidgetByIndex(currentItemIndex, itemWidget);

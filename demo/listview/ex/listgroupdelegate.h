@@ -23,6 +23,7 @@ public:
     void showGroupItems(const QString& groupHex, bool visible);
 
 public:
+    virtual int groupMargin() const;
     virtual int groupItemRenderHeight(Qters::QrWidgets::QrListViewData *data) const;
 
     // QrListVidewDelegate interface

@@ -66,6 +66,11 @@ void ListGroupDelegate::showGroupItems(const QString &groupHex, bool visible)
     }
 }
 
+int ListGroupDelegate::groupMargin() const
+{
+    return 10;
+}
+
 void ListGroupDelegate::sortImpl(bool update/* = true*/)
 {
     QrListVidewDelegate::sortImpl(false);   //  delay update to end of function

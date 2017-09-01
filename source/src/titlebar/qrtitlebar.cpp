@@ -175,7 +175,7 @@ QrTitleBar::~QrTitleBar()
 
 }
 
-void QrTitleBar::setFlags(QrTitleBar::BarFlags flags)
+void QrTitleBar::setFlags(long flags)
 {
     Q_D(QrTitleBar);
     d->logo->setVisible(flags & BarFlags::Logo);

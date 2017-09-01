@@ -33,7 +33,7 @@ public:
     ~QrTitleBar();
 
 public:
-    void setFlags(BarFlags flags);
+    void setFlags(long flags);
     void setTitle(const QString& title);
     void setLogo(const QPixmap& logo);
     void defaultButtonStyle();

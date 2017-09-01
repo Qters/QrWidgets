@@ -1,4 +1,4 @@
-#include "titlebar/qrmovable.h"
+﻿#include "titlebar/qrmovable.h"
 
 #include <QtCore/qdebug.h>
 #include <QtGui/qevent.h>
@@ -24,11 +24,26 @@ public:
 
 public:
     QrMovablePrivate(QrMovable* q);
+
+public:
+    void drawBox(QWidget *widget) const;
 };
 
 QrMovablePrivate::QrMovablePrivate(QrMovable *q)
     : q_ptr(q)
 {
+}
+
+void QrMovablePrivate::drawBox(QWidget *widget) const
+{
+    QRect region = widget->rect();
+
+    QPainter painter(widget);
+    QPen pen;
+    pen.setColor(shaderDelegate->boxColor());
+    pen.setWidth(2);
+    painter.setPen(pen);
+    painter.drawRect(region.x(), region.y(), region.width(), region.height());
 }
 
 
@@ -122,14 +137,8 @@ bool QrMovable::eventFilter(QObject *watched, QEvent *event)
         switch(event->type()) {
         case QEvent::Paint:
             if(nullptr != d->shaderDelegate) {
-                QRect region = parentWidget()->rect();
-
-                QPainter painter(parentWidget());
-                QPen pen;
-                pen.setColor(d->shaderDelegate->boxColor());
-                pen.setWidth(2);
-                painter.setPen(pen);
-                painter.drawRect(region.x(), region.y(), region.width(), region.height());
+                d->drawBox(this);
+                d->drawBox(parentWidget());
             }
             break;
         case QEvent::MouseMove:

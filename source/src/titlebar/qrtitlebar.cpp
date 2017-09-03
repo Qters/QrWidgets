@@ -184,7 +184,6 @@ void QrTitleBar::setFlags(long flags)
     d->title->setVisible(flags & BarFlags::Title);
     d->minBtn->setVisible(flags & BarFlags::MinButton);
     d->maxBtn->setVisible(flags & BarFlags::MaxButton);
-    d->normalBtn->setVisible(flags & BarFlags::MaxButton);
     d->closeBtn->setVisible(flags & BarFlags::CloseButton);
 }
 

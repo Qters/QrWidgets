@@ -1,4 +1,4 @@
-/* Original Work Copyright (c) 2012-2014 Alexander Turkin
+﻿/* Original Work Copyright (c) 2012-2014 Alexander Turkin
    Modified 2014 by William Hallatt
    Modified 2015 by Jacob Dawid
 
@@ -77,6 +77,7 @@ private:
     void updateSize();
     void updateTimer();
     void updatePosition();
+    void updateLabelPos();
 };
 
 QrWaitingSpinnerWidgetPrivate::QrWaitingSpinnerWidgetPrivate(QrWaitingSpinnerWidget *q,
@@ -174,6 +175,16 @@ void QrWaitingSpinnerWidgetPrivate::updatePosition()
     }
 }
 
+void QrWaitingSpinnerWidgetPrivate::updateLabelPos()
+{
+    Q_Q(QrWaitingSpinnerWidget);
+    if(tipsLabel->isVisible()) {
+        QPoint promptLabelPos = QPoint(0, q->rect().center().y() + 2 * lineLength + tipsLabel->height());
+        tipsLabel->move(promptLabelPos);
+        tipsLabel->setFixedWidth(q->rect().width());
+    }
+}
+
 NS_QRWIDGETS_END
 
 USING_NS_QRWIDGETS;
@@ -236,6 +247,7 @@ void QrWaitingSpinnerWidget::paintEvent(QPaintEvent *)
     Q_D(QrWaitingSpinnerWidget);
 
     d->updatePosition();
+    d->updateLabelPos();
     QPainter painter(this);
     painter.fillRect(this->rect(), Qt::transparent);
     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -280,12 +292,7 @@ void QrWaitingSpinnerWidget::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 
     Q_D(QrWaitingSpinnerWidget);
-    if(d->tipsLabel->isVisible()) {
-        QPoint promptLabelPos = QPoint(0,
-                                       rect().center().y() + 2 * d->lineLength + d->tipsLabel->height());
-        d->tipsLabel->move(promptLabelPos);
-        d->tipsLabel->setFixedWidth(rect().width());
-    }
+    d->updateLabelPos();
 }
 
 void QrWaitingSpinnerWidget::start(const QString& tips /*= ""*/)
@@ -296,6 +303,7 @@ void QrWaitingSpinnerWidget::start(const QString& tips /*= ""*/)
 
     d->tipsLabel->setText(tips);
     d->tipsLabel->setVisible(! tips.isEmpty());
+    d->updateLabelPos();
 
     show();
 

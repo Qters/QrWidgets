@@ -1,4 +1,4 @@
-#ifndef QRMOVABLE_H
+﻿#ifndef QRMOVABLE_H
 #define QRMOVABLE_H
 
 #include <QtWidgets/qpushbutton.h>
@@ -10,6 +10,19 @@
 NS_QRWIDGETS_BEGIN
 
 class QrMovablePrivate;
+class QrMovableImplPrivate;
+
+class QRWIDGETSSHARED_EXPORT QrMovableImpl : public QObject
+{
+    Q_OBJECT
+
+    QR_DECLARE_PRIVATE(QrMovableImpl)
+
+public:
+    QrMovableImpl(QWidget *moveWidget);
+    ~QrMovableImpl();
+
+};
 
 class QRWIDGETSSHARED_EXPORT QrMovable : public QWidget
 {
@@ -25,10 +38,11 @@ public:
     void init();
 
     void donotMove(QPushButton *button);
-    void setBoxColor(const QColor& boxColor);
+    void setBoxEffect(bool visible);
+    void setMoveBoxColor(const QColor& boxColor);
 
 public:
-    void setBoxEffect(bool visible);
+    void setMoveBoxEffect(bool visible);
     void moveByRigthBottomCorner(bool move);
 
     // QObject interface

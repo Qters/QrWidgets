@@ -15,6 +15,7 @@ public:
 public:
     QrShaderDelegate *shaderDelegate = nullptr;
     bool isMovable = true;
+    bool isBoxEffect = true;
     bool clickOnButton = false;
 
     bool isNeedBoxBeforeChanging = false;
@@ -88,13 +89,19 @@ void QrMovable::init()
     });
 }
 
-void QrMovable::setBoxColor(const QColor &boxColor)
+void QrMovable::setMoveBoxColor(const QColor &boxColor)
 {
     Q_D(QrMovable);
     d->shaderDelegate->setBoxColor(boxColor);
 }
 
 void QrMovable::setBoxEffect(bool visible)
+{
+    Q_D(QrMovable);
+    d->isBoxEffect = visible;
+}
+
+void QrMovable::setMoveBoxEffect(bool visible)
 {
     Q_D(QrMovable);
     d->shaderDelegate->setNeedPaint(visible);
@@ -136,7 +143,7 @@ bool QrMovable::eventFilter(QObject *watched, QEvent *event)
         Q_D(QrMovable);
         switch(event->type()) {
         case QEvent::Paint:
-            if(nullptr != d->shaderDelegate) {
+            if(d->isBoxEffect && nullptr != d->shaderDelegate) {
                 d->drawBox(this);
                 d->drawBox(parentWidget());
             }
@@ -161,7 +168,7 @@ bool QrMovable::eventFilter(QObject *watched, QEvent *event)
                 parentWidget()->setCursor(QCursor(Qt::SizeFDiagCursor));
 
                 d->isNeedBoxBeforeChanging = d->shaderDelegate->needPaint();
-                setBoxEffect(false);
+                setMoveBoxEffect(false);
 
                 d->isChangingParentRect = true;
                 d->parentPointMoveBefore = static_cast<QMouseEvent*>(event)->pos();
@@ -172,7 +179,7 @@ bool QrMovable::eventFilter(QObject *watched, QEvent *event)
                 parentWidget()->setCursor(QCursor(Qt::ArrowCursor));
                 d->isChangingParentRect = false;
 
-                setBoxEffect(d->isNeedBoxBeforeChanging);
+                setMoveBoxEffect(d->isNeedBoxBeforeChanging);
             }
             break;
         }
